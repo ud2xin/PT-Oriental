@@ -34,4 +34,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/export', [ReportController::class,'export'])->name('reports.export');
 });
 
+Route::get('/profile', function () {
+    return view('dashboard.profile');
+})->name('profile');
+
 require __DIR__.'/auth.php';
