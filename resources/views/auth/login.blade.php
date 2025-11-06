@@ -1,47 +1,91 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ config('app.name', 'Laravel') }} - Login</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body>
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-r from-cyan-200 via-blue-300 to-blue-800 p-6">
+        <div class="flex bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden max-w-4xl w-full">
+            <!-- Logo Section -->
+            <div class="w-1/2 bg-white p-12 flex items-center justify-center">
+                <img src="{{ asset('images/oei-logo.png') }}" alt="OEI Logo" class="w-full max-w-sm object-contain">
+            </div>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+            <!-- Login Form Section -->
+            <div class="w-1/2 bg-gradient-to-br from-blue-200/50 to-blue-300/50 backdrop-blur-md p-12 flex flex-col justify-center">
+                <h2 class="text-4xl font-bold text-blue-600 mb-8 text-center">Login</h2>
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                <!-- Session Status -->
+                @if (session('status'))
+                    <div class="mb-4 font-medium text-sm text-green-600">
+                        {{ session('status') }}
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('login') }}" class="space-y-6">
+                    @csrf
+
+                    <!-- Email Address -->
+                    <div>
+                        <input id="email"
+                                type="email"
+                                name="email"
+                                value="{{ old('email') }}"
+                                required
+                                autofocus
+                                autocomplete="username"
+                                placeholder="Email/Username"
+                                class="w-full px-4 py-3 bg-transparent border-b-2 border-blue-400 focus:border-blue-600 focus:outline-none text-gray-700 placeholder-gray-600 transition-colors" />
+                        @error('email')
+                            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <input id="password"
+                                type="password"
+                                name="password"
+                                required
+                                autocomplete="current-password"
+                                placeholder="Password"
+                                class="w-full px-4 py-3 bg-transparent border-b-2 border-blue-400 focus:border-blue-600 focus:outline-none text-gray-700 placeholder-gray-600 transition-colors" />
+                        @error('password')
+                            <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- Login Button -->
+                    <div class="pt-4">
+                        <button type="submit"
+                                class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full shadow-lg transition-all duration-300 transform hover:scale-[1.02]">
+                            Login
+                        </button>
+                    </div>
+
+                    <!-- Links -->
+                    <div class="flex items-center justify-between text-sm pt-2">
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}"
+                                class="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                                Create an account
+                            </a>
+                        @endif
+
+                        @if (Route::has('password.request'))
+                            <a href="{{ route('password.request') }}"
+                                class="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                                Forget password?
+                            </a>
+                        @endif
+                    </div>
+                </form>
+            </div>
         </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    </div>
+</body>
+</html>
