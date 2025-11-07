@@ -38,4 +38,6 @@ Route::get('/profile', function () {
     return view('dashboard.profile');
 })->name('profile');
 
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
 require __DIR__.'/auth.php';
