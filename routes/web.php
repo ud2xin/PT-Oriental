@@ -6,6 +6,8 @@ use App\Http\Controllers\Frontend\DashboardController;
 use App\Http\Controllers\Frontend\ImportController;
 use App\Http\Controllers\Frontend\AttendanceController;
 use App\Http\Controllers\Frontend\ReportController;
+use App\Http\Controllers\Frontend\UserController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -39,5 +41,9 @@ Route::get('/profile', function () {
 })->name('profile');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+});
 
 require __DIR__.'/auth.php';
