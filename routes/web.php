@@ -34,6 +34,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/reports', [ReportController::class,'index'])->name('reports.index');
     Route::get('/reports/export', [ReportController::class,'export'])->name('reports.export');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware('auth')
+    ->name('dashboard');
+
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
 });
 
 Route::get('/profile', function () {
@@ -42,8 +48,12 @@ Route::get('/profile', function () {
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-});
+Route::get('/settings', function () {
+    return view('settings.index');
+})->name('settings.index');
+
+Route::get('/settings', function () {
+    return view('settings.index');
+})->name('settings.index');
 
 require __DIR__.'/auth.php';
