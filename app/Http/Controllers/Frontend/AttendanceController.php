@@ -12,8 +12,13 @@ class AttendanceController extends Controller
         return view('attendance.index');
     }
 
-    public function classify(Request $request)
+    public function checkin()
     {
-        // nanti untuk klasifikasi data absensi
+        return view('attendance.checkin');
+    }
+
+    public function checkout()
+    {
+        return view('attendance.checkout');
     }
 }
