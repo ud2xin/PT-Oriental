@@ -62,6 +62,14 @@ Route::middleware(['auth'])->group(function () {
     })->name('settings.index');
 
     Route::resource('departments', DepartmentController::class);
+
+    Route::prefix('attendance')->group(function () {
+    Route::get('/', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('/checkin', [AttendanceController::class, 'checkin'])->name('attendance.checkin');
+    Route::post('/checkin', [AttendanceController::class, 'storeCheckin'])->name('attendance.storeCheckin');
+    Route::get('/checkout', [AttendanceController::class, 'checkout'])->name('attendance.checkout');
+    Route::post('/checkout', [AttendanceController::class, 'storeCheckout'])->name('attendance.storeCheckout');
+    });
 });
 
 
