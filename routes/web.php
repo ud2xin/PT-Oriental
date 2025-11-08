@@ -64,11 +64,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('departments', DepartmentController::class);
 
     Route::prefix('attendance')->group(function () {
-    Route::get('/', [AttendanceController::class, 'index'])->name('attendance.index');
-    Route::get('/checkin', [AttendanceController::class, 'checkin'])->name('attendance.checkin');
-    Route::post('/checkin', [AttendanceController::class, 'storeCheckin'])->name('attendance.storeCheckin');
-    Route::get('/checkout', [AttendanceController::class, 'checkout'])->name('attendance.checkout');
-    Route::post('/checkout', [AttendanceController::class, 'storeCheckout'])->name('attendance.storeCheckout');
+    Route::get('/', [AttendanceController::class, 'index'])->name('index');
+    Route::get('/checkin', [AttendanceController::class, 'showCheckin'])->name('checkin');
+    Route::post('/checkin', [AttendanceController::class, 'checkin'])->name('checkin.store');
+    Route::post('/checkout', [AttendanceController::class, 'checkout'])->name('checkout.store');
+    Route::get('/export', [AttendanceController::class, 'export'])->name('export');
+    Route::get('/{id}', [AttendanceController::class, 'show'])->name('show');
     });
 });
 

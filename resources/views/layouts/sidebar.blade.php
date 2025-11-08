@@ -126,7 +126,7 @@
 
     <!-- Sidebar Message (Optional - bisa dihapus jika tidak perlu) -->
     <div class="sidebar-card d-none d-lg-flex">
-        <img class="sidebar-card-illustration mb-2" src="{{ asset('vendor\sb-admin-2\img\undraw_rocket.svg') }}" alt="...">
+        <img class="sidebar-card-illustration mb-2" src="{{ asset('images/oei-logo.png') }}" alt="...">
         <p class="text-center mb-2"><strong>Sistem Absensi</strong> PT Oriental Electronics Indonesia</p>
     </div>
 
