@@ -34,7 +34,7 @@
 
     <!-- Nav Item - Absen (Check In/Out) -->
     <li class="nav-item {{ request()->is('attendance/checkin') || request()->is('attendance/checkout') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('attendance.checkin') }}">
+        <a class="nav-link" href="{{ route('attendance.checkin.show') }}">
             <i class="fas fa-fw fa-fingerprint"></i>
             <span>Absen Sekarang</span>
         </a>

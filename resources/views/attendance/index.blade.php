@@ -8,7 +8,7 @@
         <a href="{{ route('attendance.export') }}" class="btn btn-success">
             <i class="fas fa-download mr-2"></i>Export Excel
         </a>
-        <a href="{{ route('attendance.checkin') }}" class="btn btn-primary">
+        <a href="{{ route('attendance.checkin.show') }}" class="btn btn-primary">
             <i class="fas fa-fingerprint mr-2"></i>Absen Sekarang
         </a>
     </div>
