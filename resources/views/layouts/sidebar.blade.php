@@ -66,8 +66,8 @@
     </div>
 
     <!-- Nav Item - Karyawan -->
-    <li class="nav-item {{ request()->is('users*') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('users.index') }}">
+    <li class="nav-item {{ request()->is('employees*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('employees.index') }}">
             <i class="fas fa-fw fa-users"></i>
             <span>Data Karyawan</span>
         </a>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Frontend\AttendanceController;
 use App\Http\Controllers\Frontend\ReportsController;
 use App\Http\Controllers\Frontend\UserController;
 use App\Http\Controllers\Frontend\DepartmentController;
+use App\Http\Controllers\Frontend\EmployeeController;
 use Illuminate\Support\Facades\Route;
 
 // Landing page
@@ -57,6 +58,9 @@ Route::middleware(['auth'])->group(function () {
         // SHOW DETAIL
         Route::get('/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
     });
+
+    // EMPLOYEES
+        Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
 });
 
 require __DIR__.'/auth.php';
