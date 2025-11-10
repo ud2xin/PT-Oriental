@@ -1,0 +1,4 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('/sb-admin-2/css/sb-admin-2.min.css');
