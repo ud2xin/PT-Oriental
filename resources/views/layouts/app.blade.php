@@ -16,7 +16,7 @@
 
     <script src="{{ asset('vendor/sb-admin-2/js/sb-admin-2.min.js') }}"></script>
 
-    <body id="page-top">
+    <id="page-top">
         <div id="wrapper">
             @include('layouts.sidebar')
             <div id="content-wrapper" class="d-flex flex-column">
@@ -34,6 +34,7 @@
         <script src="{{ asset('sb-admin-2/vendor/jquery/jquery.min.js') }}"></script>
         <script src="{{ asset('sb-admin-2/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('sb-admin-2/js/sb-admin-2.min.js') }}"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         @stack('scripts')
     </body>
 </html>

@@ -12,10 +12,10 @@ return new class extends Migration
             // Tambah kolom user_id sebagai foreign key ke tabel users
             if (!Schema::hasColumn('attendance_logs', 'user_id')) {
                 $table->foreignId('user_id')
-                      ->nullable()
-                      ->constrained('users')
-                      ->onDelete('cascade')
-                      ->after('id');
+                    ->nullable()
+                    ->constrained('users')
+                    ->onDelete('cascade')
+                    ->after('id');
             }
         });
     }

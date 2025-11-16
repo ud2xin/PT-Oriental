@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Http\Controllers\Frontend;
 
@@ -29,37 +29,50 @@ class AttendanceController extends Controller
         $departemenList = Department::pluck('name')->toArray();
         $namaBulan = Carbon::createFromDate(null, $bulan, 1)->locale('id')->translatedFormat('F');
 
-        // Query dasar absensi
+        // QUERY
         $query = Attendance::with('user')
-            ->whereMonth('tanggal', $bulan)
-            ->whereYear('tanggal', $tahun);
+            ->whereMonth('tanggal_scan', $bulan)
+            ->whereYear('tanggal_scan', $tahun);
 
-        // Filter departemen (admin hanya lihat departemennya)
-        if ($role === 'admin') {
+        // SUPER ADMIN → melihat semua, bisa filter departemen
+        if ($role === 'super_admin') {
+
+            if ($departemen) {
+                $query->whereHas('user', function ($q) use ($departemen) {
+                    $q->whereHas('department', function ($d) use ($departemen) {
+                        $d->where('name', $departemen);
+                    });
+                });
+            }
+
+        }
+        // ADMIN → hanya melihat departemen sendiri
+        elseif ($role === 'admin') {
+
             $query->whereHas('user', function ($q) use ($user) {
                 $q->where('departemen_id', $user->departemen_id);
             });
-        } elseif ($role === 'super_admin' && $departemen) {
-            $query->whereHas('user', function ($q) use ($departemen) {
-                $q->whereHas('department', fn($d) => $d->where('name', $departemen));
+
+        }
+        // KARYAWAN → hanya melihat absensi dirinya sendiri
+        else {
+
+            $query->whereHas('user', function ($q) use ($user) {
+                $q->where('name', $user->name);
             });
-        } else {
-            // karyawan hanya lihat miliknya
-            $query->where('user_id', $user->id);
+
         }
 
-        // Filter status
-        if ($status !== 'all') {
-            $query->where('status', $status);
-        }
-
-        // Pencarian nama
+        // FILTER SEARCH (nama)
         if ($search) {
-            $query->whereHas('user', fn($q) => $q->where('name', 'like', "%$search%"));
+            $query->whereHas('user', fn($q) =>
+                $q->where('name', 'like', "%$search%")
+            );
         }
 
-        $attendanceData = $query->orderBy('tanggal', 'desc')->get();
+        $attendanceData = $query->orderBy('tanggal_scan', 'desc')->get();
 
+        // DATA UNTUK VIEW
         $data = [
             'title' => $role === 'super_admin'
                 ? 'Rekap Kehadiran Seluruh Karyawan'
@@ -77,7 +90,7 @@ class AttendanceController extends Controller
             'attendanceData' => $attendanceData,
         ];
 
-        // Tentukan view berdasarkan role
+        // PILIH VIEW
         if ($role === 'super_admin') {
             return view('attendance.index', $data);
         } elseif ($role === 'admin') {
@@ -92,10 +105,9 @@ class AttendanceController extends Controller
         $user = Auth::user();
         $today = Carbon::today();
 
-        // Cek apakah sudah check-in
         $attendance = Attendance::firstOrNew([
             'user_id' => $user->id,
-            'tanggal' => $today,
+            'tanggal_scan' => $today,
         ]);
 
         if ($attendance->jam_masuk) {
@@ -115,7 +127,7 @@ class AttendanceController extends Controller
         $today = Carbon::today();
 
         $attendance = Attendance::where('user_id', $user->id)
-            ->where('tanggal', $today)
+            ->where('tanggal_scan', $today)
             ->first();
 
         if (!$attendance || !$attendance->jam_masuk) {
@@ -148,7 +160,7 @@ class AttendanceController extends Controller
         $today = Carbon::today();
 
         $attendance = Attendance::where('user_id', $user->id)
-            ->where('tanggal', $today)
+            ->where('tanggal_scan', $today)
             ->first();
 
         return view('attendance.checkin', [
@@ -162,3 +174,4 @@ class AttendanceController extends Controller
         return 'Fitur export masih dalam pengembangan.';
     }
 }
+    
