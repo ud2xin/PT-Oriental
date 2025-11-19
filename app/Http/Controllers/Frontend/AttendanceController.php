@@ -1,167 +1,177 @@
-<?php
+<?php 
 
-    namespace App\Http\Controllers\Frontend;
+namespace App\Http\Controllers\Frontend;
 
-    use App\Http\Controllers\Controller;
-    use Illuminate\Http\Request;
-    use Illuminate\Support\Facades\Auth;
-    use Carbon\Carbon;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use App\Models\Attendance;
+use App\Models\User;
+use App\Models\Department;
 
-    class AttendanceController extends Controller
+class AttendanceController extends Controller
+{
+    public function index(Request $request)
     {
-        public function index(Request $request)
-        {
-            $bulanSekarang = Carbon::now()->translatedFormat('F');
-            $tahunSekarang = Carbon::now()->year;
+        $bulanSekarang = Carbon::now()->month;
+        $tahunSekarang = Carbon::now()->year;
 
-            $bulan = $request->input('bulan', Carbon::now()->month);
-            $tahun = $request->input('tahun', $tahunSekarang);
+        $bulan = $request->input('bulan', $bulanSekarang);
+        $tahun = $request->input('tahun', $tahunSekarang);
+        $search = $request->input('search', '');
+        $status = $request->input('status', 'all');
+        $departemen = $request->input('departemen', '');
 
-            $user = Auth::user();
-            $role = $user->role ?? 'karyawan';
+        $user = Auth::user();
+        $role = $user->role ?? 'karyawan';
 
-            // Variabel umum untuk filter
-            $departemenList = ['Produksi', 'QC', 'Office', 'IT', 'HRD', 'Finance'];
-            $departemen = $request->input('departemen', $user->departemen ?? '');
-            $status = $request->input('status', 'all');
-            $search = $request->input('search', '');
-            $namaBulan = Carbon::createFromDate(null, $bulan, 1)->locale('id')->translatedFormat('F');
+        $departemenList = Department::pluck('name')->toArray();
+        $namaBulan = Carbon::createFromDate(null, $bulan, 1)->locale('id')->translatedFormat('F');
 
-            // Dummy data absensi (bisa diganti dari database)
-            $attendanceData = [
-                [
-                    'id' => 1,
-                    'nama' => 'Ahmad Fauzi',
-                    'departemen' => 'Produksi',
-                    'tanggal' => Carbon::now()->toDateString(),
-                    'jam_masuk' => '08:02',
-                    'jam_keluar' => '17:00',
-                    'status' => 'Hadir',
-                    'keterangan' => '-'
-                ],
-                [
-                    'id' => 2,
-                    'nama' => 'Siti Nurhaliza',
-                    'departemen' => 'QC',
-                    'tanggal' => Carbon::now()->toDateString(),
-                    'jam_masuk' => '08:12',
-                    'jam_keluar' => '-',
-                    'status' => 'Izin',
-                    'keterangan' => 'Urusan keluarga'
-                ],
-                [
-                    'id' => 3,
-                    'nama' => 'Budi Santoso',
-                    'departemen' => 'Office',
-                    'tanggal' => Carbon::now()->toDateString(),
-                    'jam_masuk' => '-',
-                    'jam_keluar' => '-',
-                    'status' => 'Alfa',
-                    'keterangan' => 'Tanpa keterangan'
-                ],
-            ];
+        // QUERY
+        $query = Attendance::with('user')
+            ->whereMonth('tanggal_scan', $bulan)
+            ->whereYear('tanggal_scan', $tahun);
 
-            // SUPER ADMIN
-            if ($role === 'super_admin') {
-                $data = [
-                    'title' => 'Rekap Kehadiran Seluruh Karyawan',
-                    'role' => $role,
-                    'bulan' => $bulan,
-                    'tahun' => $tahun,
-                    'namaBulan' => $namaBulan,
-                    'departemen' => 'Semua Departemen',
-                    'departemenList' => $departemenList,
-                    'status' => $status,
-                    'search' => $search,
-                    'attendanceData' => $attendanceData,
-                ];
+        // SUPER ADMIN → melihat semua, bisa filter departemen
+        if ($role === 'super_admin') {
 
-                return view('attendance.index', $data);
+            if ($departemen) {
+                $query->whereHas('user', function ($q) use ($departemen) {
+                    $q->whereHas('department', function ($d) use ($departemen) {
+                        $d->where('name', $departemen);
+                    });
+                });
             }
 
-            // ADMIN DEPARTEMEN
-            if ($role === 'admin') {
-                $data = [
-                    'title' => 'Rekap Absensi Departemen ' . ($user->departemen ?? 'Produksi'),
-                    'role' => $role,
-                    'bulan' => $bulan,
-                    'tahun' => $tahun,
-                    'namaBulan' => $namaBulan,
-                    'departemen' => $user->departemen ?? 'Produksi',
-                    'departemenList' => $departemenList,
-                    'status' => $status,
-                    'search' => $search,
-                    'attendanceData' => array_filter($attendanceData, fn($d) => $d['departemen'] === ($user->departemen ?? 'Produksi')),
-                ];
-
-                return view('attendance.admin', $data);
-            }
-
-            // KARYAWAN
-            return redirect()->route('attendance.checkin.show');
         }
+        // ADMIN → hanya melihat departemen sendiri
+        elseif ($role === 'admin') {
 
-        public function checkin(Request $request)
-        {
-            return back()->with('success', 'Check-in berhasil!');
+            $query->whereHas('user', function ($q) use ($user) {
+                $q->where('departemen_id', $user->departemen_id);
+            });
+
         }
+        // KARYAWAN → hanya melihat absensi dirinya sendiri
+        else {
 
-        public function checkout(Request $request)
-        {
-            return back()->with('success', 'Check-out berhasil!');
-        }
-
-        public function export()
-        {
-            return 'Fitur export masih dalam pengembangan.';
-        }
-
-        public function show($id)
-        {
-            // contoh data dummy
-            $data = [
-                'title' => 'Detail Kehadiran',
-                'id' => $id,
-                'nama' => 'Ahmad Fauzi',
-                'departemen' => 'Produksi',
-                'tanggal' => now()->format('d F Y'),
-                'jam_masuk' => '08:10',
-                'jam_keluar' => '17:00',
-                'status' => 'Hadir'
-            ];
-
-            return view('attendance.show', $data);
-        }
-
-        public function showCheckin()
-        {
-            $user = Auth::user();
-
-            // Simulasi data absensi hari ini (nanti bisa diganti query database)
-            $todayAttendance = [
-                'checked_in' => false,
-                'checked_out' => false,
-                'check_in_time' => null,
-                'check_out_time' => null,
-            ];
-
-            // Contoh kondisi (nanti bisa pakai model Attendance)
-            // Misalnya sudah check in jam 08:05 tapi belum check out
-            if (session('checked_in')) {
-                $todayAttendance['checked_in'] = true;
-                $todayAttendance['check_in_time'] = session('check_in_time', '08:05');
-            }
-            if (session('checked_out')) {
-                $todayAttendance['checked_out'] = true;
-                $todayAttendance['check_out_time'] = session('check_out_time', '17:00');
-            }
-
-            return view('attendance.checkin', [
-                'user' => $user,
-                'todayAttendance' => $todayAttendance,
-            ]);
-
+            $query->whereHas('user', function ($q) use ($user) {
+                $q->where('name', $user->name);
+            });
 
         }
 
+        // FILTER SEARCH (nama)
+        if ($search) {
+            $query->whereHas('user', fn($q) =>
+                $q->where('name', 'like', "%$search%")
+            );
+        }
+
+        $attendanceData = $query->orderBy('tanggal_scan', 'desc')->get();
+
+        // DATA UNTUK VIEW
+        $data = [
+            'title' => $role === 'super_admin'
+                ? 'Rekap Kehadiran Seluruh Karyawan'
+                : ($role === 'admin'
+                    ? 'Rekap Absensi Departemen ' . ($user->department->name ?? '')
+                    : 'Riwayat Kehadiran Saya'),
+            'role' => $role,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'namaBulan' => $namaBulan,
+            'departemen' => $departemen,
+            'departemenList' => $departemenList,
+            'status' => $status,
+            'search' => $search,
+            'attendanceData' => $attendanceData,
+        ];
+
+        // PILIH VIEW
+        if ($role === 'super_admin') {
+            return view('attendance.index', $data);
+        } elseif ($role === 'admin') {
+            return view('attendance.admin', $data);
+        } else {
+            return view('attendance.user', $data);
+        }
     }
+
+    public function checkin(Request $request)
+    {
+        $user = Auth::user();
+        $today = Carbon::today();
+
+        $attendance = Attendance::firstOrNew([
+            'user_id' => $user->id,
+            'tanggal_scan' => $today,
+        ]);
+
+        if ($attendance->jam_masuk) {
+            return back()->with('info', 'Kamu sudah melakukan check-in hari ini.');
+        }
+
+        $attendance->jam_masuk = Carbon::now()->format('H:i:s');
+        $attendance->status = 'Hadir';
+        $attendance->save();
+
+        return back()->with('success', 'Check-in berhasil!');
+    }
+
+    public function checkout(Request $request)
+    {
+        $user = Auth::user();
+        $today = Carbon::today();
+
+        $attendance = Attendance::where('user_id', $user->id)
+            ->where('tanggal_scan', $today)
+            ->first();
+
+        if (!$attendance || !$attendance->jam_masuk) {
+            return back()->with('error', 'Kamu belum check-in hari ini.');
+        }
+
+        if ($attendance->jam_keluar) {
+            return back()->with('info', 'Kamu sudah melakukan check-out.');
+        }
+
+        $attendance->jam_keluar = Carbon::now()->format('H:i:s');
+        $attendance->save();
+
+        return back()->with('success', 'Check-out berhasil!');
+    }
+
+    public function show($id)
+    {
+        $attendance = Attendance::with('user.department')->findOrFail($id);
+
+        return view('attendance.show', [
+            'title' => 'Detail Kehadiran',
+            'attendance' => $attendance,
+        ]);
+    }
+
+    public function showCheckin()
+    {
+        $user = Auth::user();
+        $today = Carbon::today();
+
+        $attendance = Attendance::where('user_id', $user->id)
+            ->where('tanggal_scan', $today)
+            ->first();
+
+        return view('attendance.checkin', [
+            'user' => $user,
+            'todayAttendance' => $attendance,
+        ]);
+    }
+
+    public function export()
+    {
+        return 'Fitur export masih dalam pengembangan.';
+    }
+}
+    

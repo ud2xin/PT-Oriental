@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Frontend\DashboardController;
-use App\Http\Controllers\Frontend\ImportController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\Frontend\AttendanceController;
 use App\Http\Controllers\Frontend\ReportsController;
 use App\Http\Controllers\Frontend\UserController;
@@ -62,5 +62,13 @@ Route::middleware(['auth'])->group(function () {
     // EMPLOYEES
         Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
 });
+
+Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+Route::get('/attendance/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
+
+Route::get('/cek-attendance', function () {
+    return \DB::select("SELECT TOP 5 * FROM ts.attendance_logs");
+});
+
 
 require __DIR__.'/auth.php';

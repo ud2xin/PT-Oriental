@@ -14,6 +14,15 @@
     </div>
 </div>
 
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+@endif
+
 <!-- Filter Section -->
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -154,86 +163,64 @@
         <h6 class="m-0 font-weight-bold text-primary">Data Absensi - {{ $namaBulan }}</h6>
     </div>
     <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama</th>
-                        <th>Departemen</th>
-                        <th>Tanggal</th>
-                        <th>Jam Masuk</th>
-                        <th>Jam Keluar</th>
-                        <th>Status</th>
-                        <th>Keterangan</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($attendanceData as $index => $attendance)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td class="font-weight-bold">{{ $attendance['nama'] }}</td>
-                        <td>{{ $attendance['departemen'] }}</td>
-                        <td>{{ \Carbon\Carbon::parse($attendance['tanggal'])->format('d/m/Y') }}</td>
-                        <td>
-                            @if($attendance['jam_masuk'] !== '-')
-                                <span class="text-dark">{{ $attendance['jam_masuk'] }}</span>
-                                @if(strtotime($attendance['jam_masuk']) > strtotime('08:00'))
-                                    <span class="badge badge-warning badge-sm ml-1">Telat</span>
-                                @endif
-                            @else
-                                <span class="text-muted">-</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($attendance['jam_keluar'] !== '-')
-                                <span class="text-dark">{{ $attendance['jam_keluar'] }}</span>
-                            @else
-                                <span class="text-muted">-</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if($attendance['status'] === 'Hadir')
-                                <span class="badge badge-success">
-                                    <i class="fas fa-check mr-1"></i>{{ $attendance['status'] }}
-                                </span>
-                            @elseif($attendance['status'] === 'Izin')
-                                <span class="badge badge-warning">
-                                    <i class="fas fa-file-alt mr-1"></i>{{ $attendance['status'] }}
-                                </span>
-                            @else
-                                <span class="badge badge-danger">
-                                    <i class="fas fa-times mr-1"></i>{{ $attendance['status'] }}
-                                </span>
-                            @endif
-                        </td>
-                        <td>{{ $attendance['keterangan'] }}</td>
-                        <td>
-                            <a href="{{ route('attendance.show', $attendance['id']) }}" class="btn btn-sm btn-info" title="Detail">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            @if($role === 'super_admin')
-                            <button class="btn btn-sm btn-warning" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" title="Hapus">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="9" class="text-center text-muted py-4">
-                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-                            Tidak ada data absensi
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+     <div class="table-responsive">
+    <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Tanggal Scan</th>
+                <th>Tanggal</th>
+                <th>Jam</th>
+                <th>PIN</th>
+                <th>NIP</th>
+                <th>Nama</th>
+                <th>Jabatan</th>
+                <th>Departemen</th>
+                <th>Kantor</th>
+                <th>Verifikasi</th>
+                <th>I/O</th>
+                <th>Workcode</th>
+                <th>SN</th>
+                <th>Mesin</th> 
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($attendanceData as $attendance)
+            <tr>
+                <td>{{ $attendance->tanggal_scan ? \Carbon\Carbon::parse($attendance->tanggal_scan)->format('d/m/Y H:i') : '-' }}</td>
+                <td>{{ $attendance->tanggal ? \Carbon\Carbon::parse($attendance->tanggal)->format('d/m/Y') : '-' }}</td>
+                <td>{{ $attendance->jam ?? '-' }}</td>
+                <td>{{ $attendance->pin ?? '-' }}</td>
+                <td>{{ $attendance->nip ?? '-' }}</td>
+                <td>{{ $attendance->nama ?? '-' }}</td>
+                <td>{{ $attendance->jabatan ?? '-' }}</td>
+                <td>{{ $attendance->departemen ?? '-' }}</td>
+                <td>{{ $attendance->kantor ?? '-' }}</td>
+                <td>{{ $attendance->verifikasi ?? '-' }}</td>
+                <td>
+                    @if($attendance->io == 1)
+                        <span class="badge bg-success">Masuk</span>
+                    @elseif($attendance->io == 2)
+                        <span class="badge bg-danger">Keluar</span>
+                    @else
+                        <span class="badge bg-secondary">-</span>
+                    @endif
+                </td>
+                <td>{{ $attendance->workcode ?? '-' }}</td>
+                <td>{{ $attendance->sn ?? '-' }}</td>
+                <td>{{ $attendance->mesin ?? '-' }}</td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="14" class="text-center text-muted py-4">
+                    <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                    Tidak ada data absensi
+                </td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
+
 
         <!-- Pagination (jika menggunakan database) -->
         {{-- <div class="d-flex justify-content-between align-items-center mt-3">
