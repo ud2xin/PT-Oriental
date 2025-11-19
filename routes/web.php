@@ -7,6 +7,7 @@ use App\Http\Controllers\Frontend\ReportsController;
 use App\Http\Controllers\Frontend\UserController;
 use App\Http\Controllers\Frontend\DepartmentController;
 use App\Http\Controllers\Frontend\EmployeeController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // Landing page
@@ -14,7 +15,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Protected routes (auth middleware)
+// Protected routes
 Route::middleware(['auth'])->group(function () {
 
     // DASHBOARD
@@ -35,35 +36,32 @@ Route::middleware(['auth'])->group(function () {
     // DEPARTMENTS
     Route::resource('departments', DepartmentController::class);
 
-    // PROFILE & SETTINGS
-    Route::get('/profile', fn() => view('dashboard.profile'))->name('profile');
+    // PROFILE
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'index'])->name('profile');
+        Route::post('/update', [ProfileController::class, 'update'])->name('profile.update'); // update foto & data
+        Route::post('/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    });
+
+    // SETTINGS
     Route::get('/settings', fn() => view('settings.index'))->name('settings.index');
 
     // ATTENDANCE
     Route::prefix('attendance')->group(function () {
-        // Attendance index / history
         Route::get('/', [AttendanceController::class, 'index'])->name('attendance.index');
-
-        // CHECKIN
         Route::get('/checkin', [AttendanceController::class, 'showCheckin'])->name('attendance.checkin.show');
         Route::post('/checkin', [AttendanceController::class, 'checkin'])->name('attendance.checkin.post');
-
-        // CHECKOUT
         Route::get('/checkout', [AttendanceController::class, 'showCheckout'])->name('attendance.checkout.show');
         Route::post('/checkout', [AttendanceController::class, 'checkout'])->name('attendance.checkout.post');
-
-        // EXPORT
         Route::get('/export', [AttendanceController::class, 'export'])->name('attendance.export');
-
-        // SHOW DETAIL
         Route::get('/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
     });
 
     // EMPLOYEES
-        Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
 });
 
 Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
 Route::get('/attendance/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
