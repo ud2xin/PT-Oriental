@@ -75,7 +75,7 @@ class ImportController extends Controller
             // Kita prioritaskan CSV jika ekstensinya .xls
             // Ini adalah asumsi berdasarkan file Anda '15-21.xls'
             if ($extension == 'xls' && $file->getMimeType() == 'text/csv') {
-                 $fileType = 'Csv';
+                $fileType = 'Csv';
             }
             
             // 2. Simpan file sementara
