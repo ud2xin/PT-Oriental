@@ -32,14 +32,6 @@
         Absensi
     </div>
 
-    <!-- Nav Item - Absen (Check In/Out) -->
-    <li class="nav-item {{ request()->is('attendance/checkin') || request()->is('attendance/checkout') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('attendance.checkin.show') }}">
-            <i class="fas fa-fw fa-fingerprint"></i>
-            <span>Absen Sekarang</span>
-        </a>
-    </li>
-
     <!-- Nav Item - Data Absensi -->
     <li class="nav-item {{ request()->is('attendance') || request()->is('attendance/history') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('attendance.index') }}">
@@ -104,14 +96,6 @@
         <a class="nav-link" href="{{ route('users.index') }}">
             <i class="fas fa-fw fa-users-cog"></i>
             <span>Manajemen User</span>
-        </a>
-    </li>
-
-    <!-- Nav Item - Konfigurasi -->
-    <li class="nav-item {{ request()->is('settings*') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('settings.index') }}">
-            <i class="fas fa-fw fa-cogs"></i>
-            <span>Konfigurasi</span>
         </a>
     </li>
     @endif

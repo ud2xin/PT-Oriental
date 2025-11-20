@@ -101,9 +101,9 @@ return [
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),
-            'host' => env('DB_HOST', 'localhost'),
-            'port' => env('DB_PORT', '1433'),
-            'database' => env('DB_DATABASE', 'laravel'),
+            'host' => env('DB_HOST', '202.65.224.117'),
+            'port' => env('DB_PORT', '8293'),
+            'database' => env('DB_DATABASE', 'tWareDb_bak'),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
