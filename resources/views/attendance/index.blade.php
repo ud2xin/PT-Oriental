@@ -163,7 +163,7 @@
         <h6 class="m-0 font-weight-bold text-primary">Data Absensi - {{ $namaBulan }}</h6>
     </div>
     <div class="card-body">
-     <div class="table-responsive">
+    <div class="table-responsive">
     <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
         <thead>
             <tr>
@@ -180,7 +180,7 @@
                 <th>I/O</th>
                 <th>Workcode</th>
                 <th>SN</th>
-                <th>Mesin</th> 
+                <th>Mesin</th>
             </tr>
         </thead>
         <tbody>

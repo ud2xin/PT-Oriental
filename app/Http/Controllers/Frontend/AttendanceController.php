@@ -29,7 +29,7 @@ class AttendanceController extends Controller
         $user = Auth::user();
         $role = $user->role ?? 'karyawan';
 
-        $departemenList = Department::pluck('name')->toArray();
+        $departemenList = Department::pluck('name', 'id')->toArray();
         $namaBulan = Carbon::createFromDate(null, $bulan, 1)->locale('id')->translatedFormat('F');
 
         // QUERY
