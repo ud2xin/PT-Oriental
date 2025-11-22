@@ -31,14 +31,17 @@ class DashboardController extends Controller
             $totalKaryawan = Attendance::distinct('NIP')->count('NIP');
 
             // Hadir Hari Ini (IN)
-            $hadirHariIni = Attendance::where('Tanggal', $today)
-                            ->where('IO', 'IN')
-                            ->distinct('NIP')->count('NIP');
+            $hadirHariIni = Attendance::where('tanggal', $today)
+                ->where('io', 'IN')
+                ->distinct('nip')
+                ->count('nip');
 
             // Izin Hari Ini (asumsi Workcode = 1)
-            $izinHariIni = Attendance::where('Tanggal', $today)
-                            ->where('Workcode', '1')
-                            ->distinct('NIP')->count('NIP');
+            $izinHariIni = Attendance::where('tanggal', $today)
+                ->where('workcode', '1')
+                ->distinct('nip')
+                ->count('nip');
+
 
             // Alfa
             $alfaHariIni = $totalKaryawan - $hadirHariIni - $izinHariIni;
