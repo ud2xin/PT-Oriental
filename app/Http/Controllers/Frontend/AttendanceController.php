@@ -29,59 +29,60 @@ class AttendanceController extends Controller
         $user = Auth::user();
         $role = $user->role ?? 'karyawan';
 
-        $departemenList = Department::pluck('name', 'id')->toArray();
+        // Ambil daftar departemen (nama)
+        $departemenList = Department::pluck('name')->toArray();
         $namaBulan = Carbon::createFromDate(null, $bulan, 1)->locale('id')->translatedFormat('F');
 
-        // QUERY
+        // Query dasar (gunakan schema ts.attendance_logs di model)
         $query = Attendance::with('user')
             ->whereMonth('tanggal_scan', $bulan)
             ->whereYear('tanggal_scan', $tahun);
 
-        // SUPER ADMIN → melihat semua, bisa filter departemen
+        // Role filter
         if ($role === 'super_admin') {
-
             if ($departemen) {
-                $query->whereHas('user', function ($q) use ($departemen) {
-                    $q->whereHas('department', function ($d) use ($departemen) {
-                        $d->where('name', $departemen);
-                    });
-                });
+                $query->where('departemen', $departemen);
+                // jika departemen di attendance tabel adalah string — langsung where.
+                // jika kamu menggunakan relation user->department, bisa gunakan whereHas seperti contoh sebelumnya.
             }
-
-        }
-        // ADMIN → hanya melihat departemen sendiri
-        elseif ($role === 'admin') {
-
-            $query->whereHas('user', function ($q) use ($user) {
-                $q->where('departemen_id', $user->departemen_id);
-            });
-
-        }
-        // KARYAWAN → hanya melihat absensi dirinya sendiri
-        else {
-
-            $query->whereHas('user', function ($q) use ($user) {
-                $q->where('name', $user->name);
-            });
-
+        } elseif ($role === 'admin') {
+            // admin melihat departemen sendiri — jika user punya department->id atau name
+            if ($user->department) {
+                $query->where('departemen', $user->department->name);
+            }
+        } else {
+            // karyawan hanya melihat dirinya sendiri
+            $query->where('nama', $user->name);
         }
 
-        // FILTER SEARCH (nama)
+        // FILTER STATUS jika kamu punya kolom status (opsional)
+        if ($status !== 'all' && $status) {
+            // contoh: status 'Hadir', 'Izin', 'Alfa'
+            $query->where('status', $status);
+        }
+
+        // SEARCH: cari pada beberapa kolom penting sesuai tabelmu
         if ($search) {
-            $query->whereHas('user', fn($q) =>
-                $q->where('name', 'like', "%$search%")
-            );
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                ->orWhere('nip', 'like', "%{$search}%")
+                ->orWhere('pin', 'like', "%{$search}%")
+                ->orWhere('jabatan', 'like', "%{$search}%")
+                ->orWhere('departemen', 'like', "%{$search}%");
+            });
         }
 
-        $attendanceData = $query->orderBy('tanggal_scan', 'desc')->get();
+        // Urut dan paginate
+        $perPage = 25; // ubah sesuai kebutuhan
+        $attendanceData = $query->orderBy('tanggal_scan', 'desc')
+                                ->paginate($perPage)
+                                ->withQueryString();
 
-        // DATA UNTUK VIEW
+        // Data untuk view
         $data = [
             'title' => $role === 'super_admin'
                 ? 'Rekap Kehadiran Seluruh Karyawan'
-                : ($role === 'admin'
-                    ? 'Rekap Absensi Departemen ' . ($user->department->name ?? '')
-                    : 'Riwayat Kehadiran Saya'),
+                : ($role === 'admin' ? 'Rekap Absensi Departemen ' . ($user->department->name ?? '') : 'Riwayat Kehadiran Saya'),
             'role' => $role,
             'bulan' => $bulan,
             'tahun' => $tahun,
@@ -93,7 +94,6 @@ class AttendanceController extends Controller
             'attendanceData' => $attendanceData,
         ];
 
-        // PILIH VIEW
         if ($role === 'super_admin') {
             return view('attendance.index', $data);
         } elseif ($role === 'admin') {
@@ -101,7 +101,7 @@ class AttendanceController extends Controller
         } else {
             return view('attendance.user', $data);
         }
-    }
+}
 
     public function checkin(Request $request)
     {
