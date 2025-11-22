@@ -162,7 +162,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($karyawanTerlambat as $index => $karyawan)
+                            {{-- @foreach($karyawanTerlambat as $index => $karyawan)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td class="font-weight-bold">{{ $karyawan['nama'] }}</td>
@@ -176,7 +176,7 @@
                                     <span class="badge {{ $badgeClass }}">{{ $karyawan['keterlambatan'] }}</span>
                                 </td>
                             </tr>
-                            @endforeach
+                            @endforeach --}}
                         </tbody>
                     </table>
                 </div>
@@ -188,7 +188,7 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+{{-- <script>
     const labels = @json($chartLabels);
     const dataHadir = @json($chartHadir);
 
@@ -224,5 +224,5 @@
             }
         }
     });
-</script>
+</script> --}}
 @endpush

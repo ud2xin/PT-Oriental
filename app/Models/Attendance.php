@@ -45,7 +45,7 @@ class Attendance extends Model
     }
 
     public function scopeMasuk($query)
-    {
+    {   
         return $query->where('io', 1);
     }
 

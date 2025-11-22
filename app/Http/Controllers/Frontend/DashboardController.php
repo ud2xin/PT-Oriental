@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Attendance;
 use Carbon\Carbon;
+use App\Models\Department;
 
 
 class DashboardController extends Controller
@@ -25,41 +26,51 @@ class DashboardController extends Controller
         // Super Admin
         if ($role === 'super_admin') {
 
-            $today = Carbon::today()->format('Y-m-d');
+            $today = now()->format('Y-m-d');
 
-            // Total Karyawan (unique NIP)
-            $totalKaryawan = Attendance::distinct('NIP')->count('NIP');
+            // Total karyawan unik berdasarkan PIN
+            $totalKaryawan = Attendance::distinct('pin')->count('pin');
 
-            // Hadir Hari Ini (IN)
+            // Hadir hari ini (io = 'in')
             $hadirHariIni = Attendance::where('tanggal', $today)
-                ->where('io', 'IN')
-                ->distinct('nip')
-                ->count('nip');
+                ->where('io', 'in')
+                ->distinct('pin')
+                ->count('pin');
 
-            // Izin Hari Ini (asumsi Workcode = 1)
+            // Izin hari ini (sementara workcode = 1)
             $izinHariIni = Attendance::where('tanggal', $today)
-                ->where('workcode', '1')
-                ->distinct('nip')
-                ->count('nip');
-
+                ->where('workcode', 1)
+                ->distinct('pin')
+                ->count('pin');
 
             // Alfa
             $alfaHariIni = $totalKaryawan - $hadirHariIni - $izinHariIni;
 
-            // Persentase Kehadiran
+            // Persentase hadir
             $persentaseKehadiran = $totalKaryawan > 0
                 ? round(($hadirHariIni / $totalKaryawan) * 100, 1)
                 : 0;
+
+            // Tambahan baru
+            $totalDepartemen = Department::count();
+
+            // Dummy
+            $hariKerjaBulanIni = 0;
+
+            // Dummy
+            $terlatHariIni = 0;
 
             return view('dashboard.super-admin', compact(
                 'totalKaryawan',
                 'hadirHariIni',
                 'izinHariIni',
                 'alfaHariIni',
-                'persentaseKehadiran'
+                'persentaseKehadiran',
+                'totalDepartemen',
+                'hariKerjaBulanIni',
+                'terlatHariIni'
             ));
         }
-
 
         // Admin Departemen
         if ($role === 'admin') {
