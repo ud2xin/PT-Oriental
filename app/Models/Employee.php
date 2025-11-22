@@ -10,18 +10,31 @@ class Employee extends Model
 {
     use HasFactory;
 
+    protected $connection = 'sqlsrv';
+    protected $table = 'employees'; // ubah jika pakai schema: 'hr.employees'
+
+    /**
+     * Primary Key
+     * Jika NIP adalah PK → set di sini
+     */
+    protected $primaryKey = 'id';
+    public $incrementing = true;
+    public $timestamps = true;
+    
     protected $fillable = [
-        'name',
-        'email',
-        'department_id',
+        'nama',
+        'notelp',
+        'jabatan',
+        'departemen_id',
+        'status',
         'nip',
-        'phone',
-        'position',
     ];
 
-    // Relasi ke departemen
+    /**
+     * Relasi ke Department
+     */
     public function department()
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Department::class, 'department_id');
     }
 }

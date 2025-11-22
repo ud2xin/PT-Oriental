@@ -28,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
     // REPORTS
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
     Route::get('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
+    Route::get('/reports/data', [ReportsController::class, 'data'])->name('reports.data');
 
     // USERS
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -70,5 +71,7 @@ Route::get('/cek-attendance', function () {
     return \DB::select("SELECT TOP 5 * FROM ts.attendance_logs");
 });
 
-
+Route::get('/cek-attendance', function () {
+    return \DB::select("SELECT TOP 5 * FROM ts.attendance_logs");
+});
 require __DIR__.'/auth.php';
