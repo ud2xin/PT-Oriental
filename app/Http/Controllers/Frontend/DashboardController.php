@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Attendance;
+use Carbon\Carbon;
+
 
 class DashboardController extends Controller
 {
@@ -21,26 +24,39 @@ class DashboardController extends Controller
 
         // Super Admin
         if ($role === 'super_admin') {
-            $data = [
-                'totalKaryawan' => 248,
-                'totalDepartemen' => 6,
-                'hariKerjaBulanIni' => 22,
-                'hadirHariIni' => 232,
-                'izinHariIni' => 8,
-                'alfaHariIni' => 8,
-                'terlatHariIni' => 15,
-                'persentaseKehadiran' => 93.5,
-                'chartLabels' => ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
-                'chartHadir' => [235, 240, 228, 238, 242, 210, 120],
-                'karyawanTerlambat' => [
-                    ['nama' => 'Ahmad Fauzi', 'departemen' => 'Produksi', 'jam_masuk' => '08:15', 'keterlambatan' => '15 menit'],
-                    ['nama' => 'Siti Nurhaliza', 'departemen' => 'QC', 'jam_masuk' => '08:22', 'keterlambatan' => '22 menit'],
-                    // dst...
-                ],
-            ];
 
-            return view('dashboard.super-admin', $data);
+            $today = Carbon::today()->format('Y-m-d');
+
+            // Total Karyawan (unique NIP)
+            $totalKaryawan = Attendance::distinct('NIP')->count('NIP');
+
+            // Hadir Hari Ini (IN)
+            $hadirHariIni = Attendance::where('Tanggal', $today)
+                            ->where('IO', 'IN')
+                            ->distinct('NIP')->count('NIP');
+
+            // Izin Hari Ini (asumsi Workcode = 1)
+            $izinHariIni = Attendance::where('Tanggal', $today)
+                            ->where('Workcode', '1')
+                            ->distinct('NIP')->count('NIP');
+
+            // Alfa
+            $alfaHariIni = $totalKaryawan - $hadirHariIni - $izinHariIni;
+
+            // Persentase Kehadiran
+            $persentaseKehadiran = $totalKaryawan > 0
+                ? round(($hadirHariIni / $totalKaryawan) * 100, 1)
+                : 0;
+
+            return view('dashboard.super-admin', compact(
+                'totalKaryawan',
+                'hadirHariIni',
+                'izinHariIni',
+                'alfaHariIni',
+                'persentaseKehadiran'
+            ));
         }
+
 
         // Admin Departemen
         if ($role === 'admin') {
