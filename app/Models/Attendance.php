@@ -71,7 +71,7 @@ class Attendance extends Model
      * Scope scan masuk (I/O = 1)
      */
     public function scopeMasuk($query)
-    {
+    {   
         return $query->where('io', 1);
     }
 

@@ -8,11 +8,29 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil semua user untuk ditampilkan di tabel
-        $users = User::all();
+        // Ambil query search dari request
+        $search = $request->input('search');
 
-        return view('users.index', compact('users'));
+        // Banyak item per halaman, ubah sesuai kebutuhan
+        $perPage = 20;
+
+        // Query: eager load department, optional filter by search (name / email / pin)
+        $usersQuery = User::with('department')
+            ->when($search, function ($q) use ($search) {
+                $q->where(function($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('pin', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('name', 'asc');
+
+        // paginate
+        $users = $usersQuery->paginate($perPage)->withQueryString();
+
+        // kirim ke view
+        return view('users.index', compact('users', 'search'));
     }
 }
