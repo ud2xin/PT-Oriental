@@ -23,7 +23,7 @@
     </div>
 @endif
 
-<!-- Filter Section -->
+<!-- Filter & Search -->
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Filter Data Absensi</h6>
@@ -49,25 +49,29 @@
                         @endfor
                     </select>
                 </div>
+
                 @if($role === 'super_admin')
                 <div class="col-md-3 mb-3">
                     <label for="departemen" class="form-label">Departemen</label>
                     <select name="departemen" id="departemen" class="form-control">
-                        @foreach($departemenList as $key => $value)
-                            <option value="{{ $key }}" {{ $departemen == $key ? 'selected' : '' }}>{{ $value }}</option>
+                        <option value="">-- Semua --</option>
+                        @foreach($departemenList as $dep)
+                            <option value="{{ $dep }}" {{ $departemen == $dep ? 'selected' : '' }}>{{ $dep }}</option>
                         @endforeach
                     </select>
                 </div>
                 @endif
+
                 <div class="col-md-2 mb-3">
                     <label for="status" class="form-label">Status</label>
                     <select name="status" id="status" class="form-control">
                         <option value="all" {{ $status == 'all' ? 'selected' : '' }}>Semua</option>
-                        <option value="hadir" {{ $status == 'hadir' ? 'selected' : '' }}>Hadir</option>
-                        <option value="izin" {{ $status == 'izin' ? 'selected' : '' }}>Izin</option>
-                        <option value="alfa" {{ $status == 'alfa' ? 'selected' : '' }}>Alfa</option>
+                        <option value="Hadir" {{ $status == 'Hadir' ? 'selected' : '' }}>Hadir</option>
+                        <option value="Izin" {{ $status == 'Izin' ? 'selected' : '' }}>Izin</option>
+                        <option value="Alfa" {{ $status == 'Alfa' ? 'selected' : '' }}>Alfa</option>
                     </select>
                 </div>
+
                 <div class="col-md-2 mb-3">
                     <label class="form-label">&nbsp;</label>
                     <button type="submit" class="btn btn-primary btn-block">
@@ -76,14 +80,17 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row mt-2">
                 <div class="col-md-10 mb-2">
-                    <input type="text" name="search" class="form-control" placeholder="Cari nama karyawan..." value="{{ $search }}">
+                    <input type="text" name="search" class="form-control" placeholder="Cari nama / NIP / PIN / Jabatan / Departemen..." value="{{ $search }}">
                 </div>
                 <div class="col-md-2 mb-2">
-                    <button type="submit" class="btn btn-info btn-block">
-                        <i class="fas fa-search"></i> Cari
-                    </button>
+                    <div class="d-flex">
+                        <button type="submit" class="btn btn-info btn-block mr-2">
+                            <i class="fas fa-search"></i> Cari
+                        </button>
+                        <a href="{{ route('attendance.index') }}" class="btn btn-secondary btn-block">Reset</a>
+                    </div>
                 </div>
             </div>
         </form>
@@ -92,61 +99,14 @@
 
 <!-- Summary Cards -->
 <div class="row mb-4">
-    <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card border-left-success shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Hadir</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">5</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card border-left-warning shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Izin</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">1</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-file-alt fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card border-left-danger shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Alfa</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">1</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-times-circle fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- (kamu bisa tetap menampilkan card-card seperti sebelumnya) -->
     <div class="col-xl-3 col-md-6 mb-3">
         <div class="card border-left-info shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ count($attendanceData) }}</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $attendanceData->total() }}</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-users fa-2x text-gray-300"></i>
@@ -163,78 +123,69 @@
         <h6 class="m-0 font-weight-bold text-primary">Data Absensi - {{ $namaBulan }}</h6>
     </div>
     <div class="card-body">
-    <div class="table-responsive">
-    <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
-        <thead>
-            <tr>
-                <th>Tanggal Scan</th>
-                <th>Tanggal</th>
-                <th>Jam</th>
-                <th>PIN</th>
-                <th>NIP</th>
-                <th>Nama</th>
-                <th>Jabatan</th>
-                <th>Departemen</th>
-                <th>Kantor</th>
-                <th>Verifikasi</th>
-                <th>I/O</th>
-                <th>Workcode</th>
-                <th>SN</th>
-                <th>Mesin</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($attendanceData as $attendance)
-            <tr>
-                <td>{{ $attendance->tanggal_scan ? \Carbon\Carbon::parse($attendance->tanggal_scan)->format('d/m/Y H:i') : '-' }}</td>
-                <td>{{ $attendance->tanggal ? \Carbon\Carbon::parse($attendance->tanggal)->format('d/m/Y') : '-' }}</td>
-                <td>{{ $attendance->jam ?? '-' }}</td>
-                <td>{{ $attendance->pin ?? '-' }}</td>
-                <td>{{ $attendance->nip ?? '-' }}</td>
-                <td>{{ $attendance->nama ?? '-' }}</td>
-                <td>{{ $attendance->jabatan ?? '-' }}</td>
-                <td>{{ $attendance->departemen ?? '-' }}</td>
-                <td>{{ $attendance->kantor ?? '-' }}</td>
-                <td>{{ $attendance->verifikasi ?? '-' }}</td>
-                <td>
-                    @if($attendance->io == 1)
-                        <span class="badge bg-success">Masuk</span>
-                    @elseif($attendance->io == 2)
-                        <span class="badge bg-danger">Keluar</span>
-                    @else
-                        <span class="badge bg-secondary">-</span>
-                    @endif
-                </td>
-                <td>{{ $attendance->workcode ?? '-' }}</td>
-                <td>{{ $attendance->sn ?? '-' }}</td>
-                <td>{{ $attendance->mesin ?? '-' }}</td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="14" class="text-center text-muted py-4">
-                    <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-                    Tidak ada data absensi
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
+        <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Tanggal Scan</th>
+                    <th>Tanggal</th>
+                    <th>Jam</th>
+                    <th>PIN</th>
+                    <th>NIP</th>
+                    <th>Nama</th>
+                    <th>Jabatan</th>
+                    <th>Departemen</th>
+                    <th>Kantor</th>
+                    <th>Verifikasi</th>
+                    <th>I/O</th>
+                    <th>Workcode</th>
+                    <th>SN</th>
+                    <th>Mesin</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($attendanceData as $attendance)
+                <tr>
+                    <td>{{ $attendance->tanggal_scan ? \Carbon\Carbon::parse($attendance->tanggal_scan)->format('d/m/Y H:i') : '-' }}</td>
+                    <td>{{ $attendance->tanggal ? \Carbon\Carbon::parse($attendance->tanggal)->format('d/m/Y') : '-' }}</td>
+                    <td>{{ $attendance->jam ?? '-' }}</td>
+                    <td>{{ $attendance->pin ?? '-' }}</td>
+                    <td>{{ $attendance->nip ?? '-' }}</td>
+                    <td>{{ $attendance->nama ?? '-' }}</td>
+                    <td>{{ $attendance->jabatan ?? '-' }}</td>
+                    <td>{{ $attendance->departemen ?? '-' }}</td>
+                    <td>{{ $attendance->kantor ?? '-' }}</td>
+                    <td>{{ $attendance->verifikasi ?? '-' }}</td>
+                    <td>
+                        @if($attendance->io == 1)
+                            <span class="badge bg-success">Masuk</span>
+                        @elseif($attendance->io == 2)
+                            <span class="badge bg-danger">Keluar</span>
+                        @else
+                            <span class="badge bg-secondary">-</span>
+                        @endif
+                    </td>
+                    <td>{{ $attendance->workcode ?? '-' }}</td>
+                    <td>{{ $attendance->sn ?? '-' }}</td>
+                    <td>{{ $attendance->mesin ?? '-' }}</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="14" class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                        Tidak ada data absensi
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+        </div>
 
-
-        <!-- Pagination (jika menggunakan database) -->
-        {{-- <div class="d-flex justify-content-between align-items-center mt-3">
-            <div>Showing 1 to 10 of 50 entries</div>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
-            </nav>
-        </div> --}}
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>Menampilkan {{ $attendanceData->firstItem() ?? 0 }} - {{ $attendanceData->lastItem() ?? 0 }} dari {{ $attendanceData->total() }} entri</div>
+            <div>{{ $attendanceData->links() }}</div>
+        </div>
     </div>
 </div>
 @endsection
