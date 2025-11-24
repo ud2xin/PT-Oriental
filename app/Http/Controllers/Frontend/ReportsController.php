@@ -44,7 +44,7 @@ class ReportsController extends Controller
             ->groupBy('nip', 'nama', 'jabatan', 'departemen', 'tanggal')
             ->orderBy('tanggal')
             ->paginate(20)
-            ->appends($request->all()); // supaya filter tidak hilang saat pindah page
+            ->appends($request->all()); // supaya filter tidak hilang
 
         // REKAP OUTPUT
         $rekap = [];
@@ -81,7 +81,7 @@ class ReportsController extends Controller
             // === STATUS HADIR ===
             $status = $a->jam_masuk ? "Hadir" : "Alfa";
 
-            // Masukkan ke tabel
+            // Masukkan ke tabel rekap
             $rekap[] = [
                 'tanggal'  => $a->tanggal,
                 'nip'      => $a->nip,
@@ -113,6 +113,7 @@ class ReportsController extends Controller
             'tanggalAkhir'   => $tanggalAkhir,
             'departemen'     => $departemen,
             'departemenList' => $departemenList,
+            'rekap'          => $rekap, // <----- FIX DISINI
         ]);
     }
 }
