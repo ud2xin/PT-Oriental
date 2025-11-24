@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Attendance;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use App\Models\Department;
 
 
@@ -51,6 +52,30 @@ class DashboardController extends Controller
                 ? round(($hadirHariIni / $totalKaryawan) * 100, 1)
                 : 0;
 
+            // ====== Grafik Kehadiran Mingguan ======
+            $startOfWeek = Carbon::now()->startOfWeek(); // Senin
+            $endOfWeek = Carbon::now()->endOfWeek();     // Minggu
+
+            $weeklyData = Attendance::selectRaw('tanggal, COUNT(DISTINCT pin) as total_hadir')
+                ->whereBetween('tanggal', [$startOfWeek->format('Y-m-d'), $endOfWeek->format('Y-m-d')])
+                ->where('io', 'in')
+                ->groupBy('tanggal')
+                ->orderBy('tanggal', 'ASC')
+                ->get();
+
+            $labels = [];
+            $dataHadir = [];
+
+            $period = CarbonPeriod::create($startOfWeek, $endOfWeek);
+
+            foreach ($period as $date) {
+                $labels[] = $date->translatedFormat('l'); // Senin, Selasa, dst.
+                $record = $weeklyData->firstWhere('tanggal', $date->format('Y-m-d'));
+                $dataHadir[] = $record ? $record->total_hadir : 0;
+            }
+
+
+
             // Tambahan baru
             $totalDepartemen = Department::count();
 
@@ -68,7 +93,9 @@ class DashboardController extends Controller
                 'persentaseKehadiran',
                 'totalDepartemen',
                 'hariKerjaBulanIni',
-                'terlatHariIni'
+                'terlatHariIni',
+                'labels',
+                'dataHadir'
             ));
         }
 
