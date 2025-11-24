@@ -16,7 +16,7 @@
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Karyawan</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalKaryawan }}</div>
-                        <div class="text-xs text-success mt-1">↑ 12 dari bulan lalu</div>
+                        <div class="text-xs text-success mt-1">Jumlah karyawan</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-users fa-2x text-gray-300"></i>
@@ -118,7 +118,7 @@
         </div>
 
         <!-- Statistics Summary -->
-        <div class="card shadow mb-4">
+        {{-- <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">Statistik Global</h6>
             </div>
@@ -139,11 +139,11 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 
 <!-- Table: 10 Karyawan Terlambat -->
-<div class="row">
+{{-- <div class="row">
     <div class="col-12">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -161,8 +161,8 @@
                                 <th>Keterlambatan</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach($karyawanTerlambat as $index => $karyawan)
+                        <tbody> --}}
+                            {{-- @foreach($karyawanTerlambat as $index => $karyawan)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td class="font-weight-bold">{{ $karyawan['nama'] }}</td>
@@ -176,21 +176,21 @@
                                     <span class="badge {{ $badgeClass }}">{{ $karyawan['keterlambatan'] }}</span>
                                 </td>
                             </tr>
-                            @endforeach
-                        </tbody>
+                            @endforeach --}}
+                        {{-- </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const labels = @json($chartLabels);
-    const dataHadir = @json($chartHadir);
+    const labels = @json($labels);
+    const dataHadir = @json($dataHadir);
 
     const ctx = document.getElementById('attendanceChart').getContext('2d');
     new Chart(ctx, {
@@ -210,16 +210,7 @@
             maintainAspectRatio: true,
             scales: {
                 y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 50
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
+                    beginAtZero: true
                 }
             }
         }
