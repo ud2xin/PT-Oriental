@@ -66,12 +66,12 @@
     </li>
 
     <!-- Nav Item - Departemen (Admin/Super Admin) -->
-    <li class="nav-item {{ request()->is('departments*') ? 'active' : '' }}">
+    {{-- <li class="nav-item {{ request()->is('departments*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('departments.index') }}">
             <i class="fas fa-fw fa-building"></i>
             <span>Departemen</span>
         </a>
-    </li>
+    </li> --}}
 
     <!-- Nav Item - Import Data -->
     <li class="nav-item {{ request()->is('import*') ? 'active' : '' }}">
