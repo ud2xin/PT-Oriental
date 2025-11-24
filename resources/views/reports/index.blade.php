@@ -35,7 +35,7 @@
                            value="{{ request('tanggal_akhir') }}">
                 </div>
 
-                <!-- Departemen -->
+                {{-- <!-- Departemen -->
                 <div class="col-md-4 mb-3">
                     <label class="form-label">Departemen</label>
                     <select name="departemen" class="form-control">
@@ -46,7 +46,7 @@
                             </option>
                         @endforeach
                     </select>
-                </div>
+                </div> --}}
 
                 <!-- Tombol Filter -->
                 <div class="col-md-2 mb-3">

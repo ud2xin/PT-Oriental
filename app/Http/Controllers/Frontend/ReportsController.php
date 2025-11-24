@@ -68,12 +68,38 @@ class ReportsController extends Controller
         }
 
         // SUMMARY
+        // $summary = [
+        //     'total_karyawan' => $absensi->groupBy('nip')->count(),
+        //     'total_hadir'    => $absensi->count(),
+        //     'total_izin'     => 0,
+        //     'total_alfa'     => 0,
+        // ];
+
+        // Query dasar untuk summary
+        $summaryQuery = AttendanceLog::whereBetween(DB::raw("CAST(tanggal AS DATE)"), [$tanggalAwal, $tanggalAkhir]);
+
+        if ($departemen !== 'all') {
+            $summaryQuery->where('departemen', $departemen);
+        }
+
+        // Summary full data (tanpa paginate)
+        $summaryTotal = $summaryQuery
+            ->select(
+                'nip',
+                'tanggal',
+                DB::raw("MIN(CASE WHEN io = 1 THEN jam END) AS jam_masuk")
+            )
+            ->groupBy('nip', 'tanggal')
+            ->get();
+
+        // Summary values
         $summary = [
-            'total_karyawan' => $absensi->groupBy('nip')->count(),
-            'total_hadir'    => $absensi->count(),
+            'total_karyawan' => $summaryTotal->groupBy('nip')->count(),
+            'total_hadir'    => $summaryTotal->where('jam_masuk', '!=', null)->count(),
             'total_izin'     => 0,
             'total_alfa'     => 0,
         ];
+
 
         return view('reports.index', [
             'absensi'        => $absensi,
