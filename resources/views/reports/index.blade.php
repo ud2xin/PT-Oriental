@@ -4,6 +4,14 @@
 @section('content')
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Laporan Kehadiran</h1>
+    <div>
+        <a href="{{ route('attendance.export') }}" class="btn btn-success">
+            <i class="fas fa-download mr-2"></i>Export PDF
+        </a>
+        {{-- <a href="{{ route('attendance.checkin.show') }}" class="btn btn-primary">
+            <i class="fas fa-fingerprint mr-2"></i>Absen Sekarang
+        </a> --}}
+    </div>
 </div>
 
 <!-- Filter Section -->
