@@ -4,14 +4,14 @@
 @section('content')
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Data Absensi</h1>
-    <div>
+    {{-- <div>
         <a href="{{ route('attendance.export') }}" class="btn btn-success">
             <i class="fas fa-download mr-2"></i>Export Excel
         </a>
         <a href="{{ route('attendance.checkin.show') }}" class="btn btn-primary">
             <i class="fas fa-fingerprint mr-2"></i>Absen Sekarang
         </a>
-    </div>
+    </div> --}}
 </div>
 
 @if(session('success'))
@@ -49,7 +49,7 @@
                     </select>
                 </div>
 
-                @if($role === 'super_admin')
+                {{-- @if($role === 'super_admin')
                 <div class="col-md-3 mb-3">
                     <label for="departemen" class="form-label">Departemen</label>
                     <select name="departemen" id="departemen" class="form-control">
@@ -59,9 +59,9 @@
                         @endforeach
                     </select>
                 </div>
-                @endif
+                @endif --}}
 
-                <div class="col-md-2 mb-3">
+                {{-- <div class="col-md-2 mb-3">
                     <label for="status" class="form-label">Status</label>
                     <select name="status" id="status" class="form-control">
                         <option value="all" {{ $status == 'all' ? 'selected' : '' }}>Semua</option>
@@ -69,7 +69,7 @@
                         <option value="Izin" {{ $status == 'Izin' ? 'selected' : '' }}>Izin</option>
                         <option value="Alfa" {{ $status == 'Alfa' ? 'selected' : '' }}>Alfa</option>
                     </select>
-                </div>
+                </div> --}}
 
                 <div class="col-md-2 mb-3">
                     <label class="form-label">&nbsp;</label>
@@ -85,11 +85,11 @@
                         placeholder="Cari nama / NIP / PIN / Jabatan / Departemen..." value="{{ $search }}">
                 </div>
                 <div class="col-md-2 mb-2">
-                    <div class="d-flex">
-                        <button type="submit" class="btn btn-info btn-block mr-2">
-                            <i class="fas fa-search"></i> Cari
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-search mr-1"></i> Cari
                         </button>
-                        <a href="{{ route('attendance.index') }}" class="btn btn-secondary btn-block">Reset</a>
+                        <a href="{{ route('attendance.index') }}" class="btn btn-secondary">Reset</a>
                     </div>
                 </div>
             </div>
