@@ -31,7 +31,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
 
     // USERS
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::resource('users', UserController::class);
 
     // DEPARTMENTS
     Route::resource('departments', DepartmentController::class);
