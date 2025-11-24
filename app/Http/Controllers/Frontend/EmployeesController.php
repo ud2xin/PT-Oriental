@@ -75,7 +75,7 @@ class EmployeesController extends Controller
             $collection->count(),
             $perPage,
             $page,
-            ['path' => request()->url()]
+            ['path' => request()->url(), 'query' => request()->query()]
         );
 
         return view('dashboard.employees.index', compact(
