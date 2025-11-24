@@ -16,7 +16,7 @@
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Karyawan</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalKaryawan }}</div>
-                        <div class="text-xs text-success mt-1">↑ 12 dari bulan lalu</div>
+                        <div class="text-xs text-success mt-1">Jumlah karyawan</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-users fa-2x text-gray-300"></i>
@@ -188,9 +188,9 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-{{-- <script>
-    const labels = @json($chartLabels);
-    const dataHadir = @json($chartHadir);
+<script>
+    const labels = @json($labels);
+    const dataHadir = @json($dataHadir);
 
     const ctx = document.getElementById('attendanceChart').getContext('2d');
     new Chart(ctx, {
@@ -210,19 +210,10 @@
             maintainAspectRatio: true,
             scales: {
                 y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 50
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
+                    beginAtZero: true
                 }
             }
         }
     });
-</script> --}}
+</script>
 @endpush
