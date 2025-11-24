@@ -65,18 +65,18 @@ class AttendanceController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                ->orWhere('nip', 'like', "%{$search}%")
-                ->orWhere('pin', 'like', "%{$search}%")
-                ->orWhere('jabatan', 'like', "%{$search}%")
-                ->orWhere('departemen', 'like', "%{$search}%");
+                    ->orWhere('nip', 'like', "%{$search}%")
+                    ->orWhere('pin', 'like', "%{$search}%")
+                    ->orWhere('jabatan', 'like', "%{$search}%")
+                    ->orWhere('departemen', 'like', "%{$search}%");
             });
         }
 
         // Urut dan paginate
         $perPage = 25; // ubah sesuai kebutuhan
         $attendanceData = $query->orderBy('tanggal_scan', 'desc')
-                                ->paginate($perPage)
-                                ->withQueryString();
+            ->paginate($perPage)
+            ->withQueryString();
 
         // Data untuk view
         $data = [
@@ -101,7 +101,7 @@ class AttendanceController extends Controller
         } else {
             return view('attendance.user', $data);
         }
-}
+    }
 
     public function checkin(Request $request)
     {

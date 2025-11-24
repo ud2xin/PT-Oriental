@@ -59,6 +59,9 @@ Route::middleware(['auth'])->group(function () {
 
     // EMPLOYEES
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+
+    //Overtime
+    Route::get('/overtime', [App\Http\Controllers\Frontend\OvertimeController::class, 'index']);
 });
 
 Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
