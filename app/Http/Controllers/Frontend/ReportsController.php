@@ -44,7 +44,8 @@ class ReportsController extends Controller
             )
             ->groupBy('nip', 'nama', 'jabatan', 'departemen', 'tanggal')
             ->orderBy('tanggal')
-            ->get();
+            ->paginate(20)
+            ->appends($request->all()); // supaya filter tidak hilang saat pindah page
 
         // REKAP
         $rekap = [];
@@ -75,7 +76,7 @@ class ReportsController extends Controller
         ];
 
         return view('reports.index', [
-            'rekap'          => $rekap,
+            'absensi'        => $absensi,
             'summary'        => $summary,
             'tanggalAwal'    => $tanggalAwal,
             'tanggalAkhir'   => $tanggalAkhir,

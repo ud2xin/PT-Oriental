@@ -20,8 +20,8 @@
                 <!-- Tanggal Awal -->
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Tanggal Awal</label>
-                    <input type="date" 
-                           name="tanggal_awal" 
+                    <input type="date"
+                           name="tanggal_awal"
                            class="form-control"
                            value="{{ request('tanggal_awal') }}">
                 </div>
@@ -29,8 +29,8 @@
                 <!-- Tanggal Akhir -->
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Tanggal Akhir</label>
-                    <input type="date" 
-                           name="tanggal_akhir" 
+                    <input type="date"
+                           name="tanggal_akhir"
                            class="form-control"
                            value="{{ request('tanggal_akhir') }}">
                 </div>
@@ -117,7 +117,7 @@
                     <tr>
                         <th>No</th>
                         <th>Tanggal</th> <!-- DITAMBAHKAN -->
-                        <th>NIK</th>
+                        <th>NIP</th>
                         <th>Nama Karyawan</th>
                         <th>Bagian</th>
                         <th>Dept</th>
@@ -132,26 +132,34 @@
                 </thead>
 
                 <tbody>
-                    @foreach($rekap as $i => $r)
+                    @foreach($absensi as $i => $a)
                     <tr>
-                        <td>{{ $i+1 }}</td>
-                        <td>{{ $r['tanggal'] }}</td> <!-- DITAMBAHKAN -->
-                        <td>{{ $r['nip'] }}</td>
-                        <td>{{ $r['nama'] }}</td>
-                        <td>{{ $r['bagian'] }}</td>
-                        <td>{{ $r['dept'] }}</td>
-                        <td>{{ $r['group'] }}</td>
-                        <td>{{ $r['in'] }}</td>
-                        <td>{{ $r['out'] }}</td>
-                        <td>{{ $r['status'] }}</td>
-                        <td>{{ $r['overtime'] }}</td>
-                        <td>{{ $r['alasan'] }}</td>
-                        <td>{{ $r['remark'] }}</td>
+                        <td>{{ $absensi->firstItem() + $i }}</td>
+                        <td>{{ $a->tanggal }}</td>
+                        <td>{{ $a->nip }}</td>
+                        <td>{{ $a->nama }}</td>
+                        <td>{{ $a->jabatan }}</td>
+                        <td>{{ $a->departemen }}</td>
+                        <td>-</td>
+                        <td>{{ $a->jam_masuk ?? '-' }}</td>
+                        <td>{{ $a->jam_keluar ?? '-' }}</td>
+                        <td>{{ $a->jam_masuk ? 'Hadir' : 'Alfa' }}</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
                     </tr>
                     @endforeach
                 </tbody>
 
             </table>
+            <div class="d-flex justify-content-between mt-3">
+                <div>
+                    Menampilkan {{ $absensi->firstItem() }} - {{ $absensi->lastItem() }} dari {{ $absensi->total() }} entri
+                </div>
+                <div>
+                    {{ $absensi->appends(request()->query())->links() }}
+                </div>
+            </div>
         </div>
     </div>
 </div>
