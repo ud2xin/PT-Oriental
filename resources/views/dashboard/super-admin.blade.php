@@ -118,7 +118,7 @@
         </div>
 
         <!-- Statistics Summary -->
-        <div class="card shadow mb-4">
+        {{-- <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">Statistik Global</h6>
             </div>
@@ -139,11 +139,11 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 
 <!-- Table: 10 Karyawan Terlambat -->
-<div class="row">
+{{-- <div class="row">
     <div class="col-12">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -161,7 +161,7 @@
                                 <th>Keterlambatan</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody> --}}
                             {{-- @foreach($karyawanTerlambat as $index => $karyawan)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
@@ -177,13 +177,13 @@
                                 </td>
                             </tr>
                             @endforeach --}}
-                        </tbody>
+                        {{-- </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 @endsection
 
 @push('scripts')
