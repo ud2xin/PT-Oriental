@@ -3,143 +3,156 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\AttendanceImport;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class ImportController extends Controller
 {
     public function index()
     {
-        // Bersihkan session jika ada sisa file sebelumnya
-        session()->forget(['import_file_path', 'import_file_type']); // <-- Update ini
         return view('import.index');
     }
 
     /**
-     * Metode ini tampaknya tidak digunakan oleh alur AJAX Anda,
-     * tetapi saya biarkan jika Anda membutuhkannya untuk hal lain.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xls,xlsx'
-        ]);
-
-        try {
-            Excel::import(new AttendanceImport, $request->file('file'));
-
-            return redirect()->route('attendance.index')
-                ->with('success', 'Data absensi berhasil diimport!');
-        } catch (\Exception $e) {
-
-            Log::error('Error saat import absensi: '.$e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return redirect()->back()
-                ->with('error', 'Import gagal! Cek log untuk detail error.');
-        }
-    }
-
-    /**
-     * Menampilkan pratinjau data dari file Excel.
-     * File akan disimpan sementara di storage.
+     * PREVIEW:
+     * - Baca Excel fingerprint
+     * - Ambil: timestamp (col 0), PIN (col 3), NIP (col 4)
+     * - Skip header + baris kosong
+     * - Insert TTK_TRANST dengan default values
+     * - Kembalikan SEMUA baris untuk DataTables
      */
     public function preview(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xls,xlsx,csv' // Izinkan CSV
+            'file' => 'required|mimes:xls,xlsx,csv'
         ]);
 
         try {
+
             $file = $request->file('file');
-            
-            // 1. Tentukan Tipe File sebagai String Sederhana
-            $extension = strtolower($file->getClientOriginalExtension());
-            $fileType = null; // Tipe Reader (String)
 
-            if ($extension == 'csv') {
-                $fileType = 'Csv';
-            } elseif ($extension == 'xls') {
-                $fileType = 'Xls';
-            } elseif ($extension == 'xlsx') {
-                $fileType = 'Xlsx';
+            // XLS (machine fingerprint format)
+            $data = Excel::toArray([], $file, null, \Maatwebsite\Excel\Excel::XLS);
+            $rows = $data[0] ?? [];
+
+            // Reset temp table
+            DB::table('TTK_TRANST')->truncate();
+
+            $preview = [];
+
+            foreach ($rows as $index => $row) {
+
+                // MINIMAL Excel punya kolom: 0,3,4
+                if (!isset($row[0]) || !isset($row[3]) || !isset($row[4])) {
+                    continue;
+                }
+
+                // Skip baris header
+                if (
+                    strtolower(trim($row[0])) === 'timestamp' ||
+                    strtolower(trim($row[3])) === 'pin' ||
+                    strtolower(trim($row[4])) === 'nip'
+                ) {
+                    continue;
+                }
+
+                // Skip baris kosong
+                if ($row[0] === "" || $row[3] === "" || $row[4] === "") {
+                    continue;
+                }
+
+                // Ambil data
+                $timestamp = $row[0];
+                $pin = trim($row[3]);
+                $nip = trim($row[4]);
+
+                // Convert Excel date
+                if (is_numeric($timestamp)) {
+                    $timestamp = ExcelDate::excelToDateTimeObject($timestamp)->format('Y-m-d H:i:s');
+                } else {
+                    $timestamp = date('Y-m-d H:i:s', strtotime($timestamp));
+                }
+
+                // Simpan ke preview array (SEMUA BARIS)
+                $preview[] = [
+                    $timestamp,
+                    $pin,
+                    $nip
+                ];
+
+                // Insert ke TTK_TRANST
+                DB::table('TTK_TRANST')->insert([
+                    'TRNS_DATE'  => $timestamp,
+                    'CARD_NMBR'  => $pin,
+                    'EMPL_NMBR'  => $nip,
+                    'TYPE_CODE'  => '1',
+                    'GUNT_PART'  => '1',
+                    'OFFI_CODE'  => 'HO',
+                    'TERM_NMBR'  => 1,
+                    'TRAN_PART'  => '',
+                    'TRAN_USR1'  => '',
+                    'BUSS_CODE'  => 'OE'
+                ]);
             }
-            
-            // Jika ekstensinya .xls tapi aslinya CSV (seperti kasus Anda)
-            // Kita prioritaskan CSV jika ekstensinya .xls
-            // Ini adalah asumsi berdasarkan file Anda '15-21.xls'
-            if ($extension == 'xls' && $file->getMimeType() == 'text/csv') {
-                 $fileType = 'Csv';
-            }
-            
-            // 2. Simpan file sementara
-            $path = $file->store('imports');
-            
-            // 3. Simpan path DAN TIPE FILE (String) di session
-            session([
-                'import_file_path' => $path,
-                'import_file_type' => $fileType 
-            ]);
 
-            // 4. Baca data untuk pratinjau, beritahu tipenya (argumen ke-4)
-            $data = Excel::toArray(new \stdClass, $path, null, $fileType);
-            
-            $previewData = array_slice($data[0], 0, 10); 
-
-            // 5. Kembalikan data pratinjau sebagai JSON
+            // Return FULL preview untuk DataTables
             return response()->json([
-                'preview' => $previewData
+                'preview' => array_merge([
+                    ['Timestamp','PIN','NIP']
+                ], $preview)
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error saat preview absensi: '.$e->getMessage(), [
-                'trace' => $e->getTraceAsString()
-            ]);
-            session()->forget(['import_file_path', 'import_file_type']);
-            return response()->json(['error' => 'Gagal memuat preview. Cek log server.'], 500);
+
+            Log::error("PREVIEW ERROR: " . $e->getMessage());
+            Log::error($e->getTraceAsString());
+
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
-     * Memproses file impor yang disimpan di session.
+     * PROCESS:
+     * Pindahkan data dari TTK_TRANST → TK_TRANST (tanpa duplikat)
      */
-    public function process(Request $request)
+    public function process()
     {
-        $filePath = session('import_file_path');
-        $fileType = session('import_file_type');
+        DB::beginTransaction();
 
-        if (!$filePath || !Storage::disk('local')->exists($filePath)) {
-            return response()->json(['error' => 'File impor tidak ditemukan. Silakan unggah ulang.'], 400);
-        }
-
-        // --- TAMBAHKAN BARIS INI ---
-        // Tentukan importer yang akan digunakan (sesuai file AttendanceImport.php)
-        $importer = new AttendanceImport();
-        // ---------------------------
-        
         try {
-            Log::info("Starting import for file: $filePath");
-            
-            // Sekarang variabel $importer sudah ada
-            // (Gunakan 'MaatExcel' jika Anda me-rename 'Excel' di 'use' statement)
-            Excel::import($importer, $filePath, 'local'); 
 
-            Storage::disk('local')->delete($filePath);
-            session()->forget(['import_file_path', 'import_file_type', 'import_preview_data']);
+            DB::statement("
+                INSERT INTO TK_TRANST
+                (TRNS_DATE, CARD_NMBR, EMPL_NMBR, TYPE_CODE,
+                 GUNT_PART, OFFI_CODE, TERM_NMBR,
+                 TRAN_PART, TRAN_USR1, BUSS_CODE)
+                SELECT A.TRNS_DATE, A.CARD_NMBR, A.EMPL_NMBR, A.TYPE_CODE,
+                       A.GUNT_PART, A.OFFI_CODE, A.TERM_NMBR,
+                       A.TRAN_PART, A.TRAN_USR1, A.BUSS_CODE
+                FROM TTK_TRANST A
+                LEFT JOIN TK_TRANST B
+                       ON A.TRNS_DATE = B.TRNS_DATE
+                      AND A.EMPL_NMBR = B.EMPL_NMBR
+                WHERE B.EMPL_NMBR IS NULL
+            ");
 
-            // Menggunakan $importer->getRowCount() mungkin tidak tersedia di ToModel,
-            // jadi kita kirim pesan sukses standar saja.
-            return response()->json(['message' => 'Impor berhasil! Data sedang diproses.']);
-        
+            DB::table('TTK_TRANST')->truncate();
+            DB::commit();
+
+            return response()->json(['message' => 'Import berhasil diproses!']);
+
         } catch (\Exception $e) {
-            Log::error('Error during import process: ' . $e->getMessage() . ' Trace: ' . $e->getTraceAsString());
-            return response()->json(['error' => 'Terjadi kesalahan internal saat impor.'], 500);
+
+            DB::rollBack();
+            Log::error("PROCESS ERROR: " . $e->getMessage());
+
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }
