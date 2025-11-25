@@ -2,6 +2,7 @@
 @section('title', 'Data Absensi')
 
 @section('content')
+
 <style>
     /* Kolom time kuning */
     .col-time {
@@ -26,7 +27,6 @@
 <h1 class="h4 mb-4">Data Absensi</h1>
 
 <!-- FILTER -->
->>>>>>> 2c1747a (selesai import data absen dan daily)
 <div class="card shadow mb-4">
     <div class="card-header">
         <strong>Filter Data Absensi</strong>
@@ -62,6 +62,7 @@
                 </div>
 
             </div>
+
             <div class="row mt-2">
                 <div class="col-md-10">
                     <input type="text" name="search" class="form-control"
@@ -73,7 +74,6 @@
                     <button class="btn btn-info">Cari</button>
                     <a href="{{ route('attendance.index', ['bulan'=>$bulan,'tahun'=>$tahun]) }}" 
                         class="btn btn-secondary">Reset</a>
-
                 </div>
             </div>
 
@@ -82,7 +82,6 @@
 </div>
 
 <!-- TABEL DATA ABSENSI -->
->>>>>>> 2c1747a (selesai import data absen dan daily)
 <div class="card shadow mb-4">
     <div class="card-header">
         <strong>
@@ -139,5 +138,4 @@
     </div>
 </div>
 
->>>>>>> 2c1747a (selesai import data absen dan daily)
 @endsection

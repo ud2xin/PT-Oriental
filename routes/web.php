@@ -75,4 +75,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/overtime', [App\Http\Controllers\Frontend\OvertimeController::class, 'index']);
 });
 
-require __DIR__ . '/auth.php';
+require _DIR_ . '/auth.php';
