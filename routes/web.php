@@ -9,6 +9,8 @@ use App\Http\Controllers\Frontend\DepartmentController;
 use App\Http\Controllers\Frontend\EmployeesController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\KaryawanDashboardController;
+
 
 // Landing page
 Route::get('/', function () {
@@ -62,6 +64,9 @@ Route::middleware(['auth'])->group(function () {
 
     //Overtime
     Route::get('/overtime', [App\Http\Controllers\Frontend\OvertimeController::class, 'index']);
+
+    Route::get('/karyawan/dashboard', [KaryawanDashboardController::class, 'index'])
+    ->name('karyawan.dashboard');
 });
 
 Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
