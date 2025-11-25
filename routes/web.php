@@ -7,7 +7,7 @@ use App\Http\Controllers\Frontend\AttendanceController;
 use App\Http\Controllers\Frontend\ReportsController;
 use App\Http\Controllers\Frontend\UserController;
 use App\Http\Controllers\Frontend\DepartmentController;
-use App\Http\Controllers\Frontend\EmployeeController;
+use App\Http\Controllers\Frontend\EmployeesController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -69,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // EMPLOYEES
-    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::get('/employees', [EmployeesController::class, 'index'])->name('employees.index');
 
     // Overtime
     Route::get('/overtime', [App\Http\Controllers\Frontend\OvertimeController::class, 'index']);
