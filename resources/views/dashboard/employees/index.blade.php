@@ -27,8 +27,8 @@
                     <label class="form-label">Status</label>
                     <select name="status" class="form-control">
                         <option value="">-- Semua --</option>
-                        <option value="Menikah" {{ request('status')=='Menikah'?'selected':'' }}>Menikah</option>
-                        <option value="Belum Menikah" {{ request('status')=='Belum Menikah'?'selected':'' }}>Belum Menikah</option>
+                        <option value="ACTIVE" {{ request('status')=='ACTIVE'?'selected':'' }}>ACTIVE</option>
+                        <option value="RESIGN" {{ request('status')=='RESIGN'?'selected':'' }}>RESIGN</option>
                     </select>
                 </div>
 

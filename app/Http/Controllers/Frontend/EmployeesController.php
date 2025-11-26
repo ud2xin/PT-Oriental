@@ -36,7 +36,7 @@ class EmployeesController extends Controller
         }
 
         if (request('status')) {
-            $collection = $collection->where('MARY_PART', request('status'));
+            $collection = $collection->where('JJIK_PART', request('status'));
         }
 
         if (request('jabatan')) {
