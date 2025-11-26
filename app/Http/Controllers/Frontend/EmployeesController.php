@@ -52,7 +52,7 @@ class EmployeesController extends Controller
         }
 
         if (request('pendidikan')) {
-            $collection = $collection->where('BDAY_PART', request('pendidikan'));
+            $collection = $collection->where('IPSA_PART', request('pendidikan'));
         }
 
         if (request('search')) {
