@@ -48,7 +48,7 @@ class EmployeesController extends Controller
         }
 
         if (request('ptkp')) {
-            $collection = $collection->where('IPSA_PART', request('ptkp'));
+            $collection = $collection->where('MARY_PART', request('ptkp'));
         }
 
         if (request('pendidikan')) {
