@@ -79,10 +79,16 @@
         </table>
 
         {{-- PAGINATION --}}
-        <div class="d-flex justify-content-end mt-3">
+        {{-- <div class="d-flex justify-content-end mt-3">
             {{ $daily->appends(request()->query())->links('pagination::bootstrap-5') }}
-        </div>
+        </div> --}}
 
+        <div class="d-flex justify-content-between mt-3">
+            <div>
+                Menampilkan {{ $daily->firstItem() }} - {{ $daily->lastItem() }} dari {{ $daily->total() }} entri
+            </div>
+            <div>{{ $daily->links() }}</div>
+        </div>
     </div>
 </div>
 
