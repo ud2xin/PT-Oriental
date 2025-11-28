@@ -1,6 +1,6 @@
 @php
-    $role = auth()->user()->role ?? 'guest';
-    $currentRoute = Route::currentRouteName();
+$role = auth()->user()->role ?? 'guest';
+$currentRoute = Route::currentRouteName();
 @endphp
 
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
@@ -40,11 +40,19 @@
         </a>
     </li>
 
-    <!-- Nav Item - Laporan -->
-    <li class="nav-item {{ request()->is('reports*') ? 'active' : '' }}">
+    <!-- Nav Item - Laporan Harian -->
+    <li class="nav-item {{ request()->is('reports') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('reports.index') }}">
             <i class="fas fa-fw fa-chart-area"></i>
-            <span>Laporan</span>
+            <span>Laporan Harian</span>
+        </a>
+    </li>
+
+    <!-- Nav Item - Overtime Report -->
+    <li class="nav-item {{ request()->is('reports/overtime') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('reports.overtime.index') }}">
+            <i class="fas fa-clock"></i>
+            <span>Overtime Report</span>
         </a>
     </li>
 
@@ -52,7 +60,7 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
 
-    <!-- Heading - Management -->
+    <!-- Heading - Manajemen -->
     <div class="sidebar-heading">
         Manajemen
     </div>
@@ -64,14 +72,6 @@
             <span>Data Karyawan</span>
         </a>
     </li>
-
-    <!-- Nav Item - Departemen (Admin/Super Admin) -->
-    {{-- <li class="nav-item {{ request()->is('departments*') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('departments.index') }}">
-            <i class="fas fa-fw fa-building"></i>
-            <span>Departemen</span>
-        </a>
-    </li> --}}
 
     <!-- Nav Item - Import Data -->
     <li class="nav-item {{ request()->is('import*') ? 'active' : '' }}">
@@ -103,62 +103,59 @@
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">
 
-    {{-- <!-- Sidebar Toggler (Sidebar) -->
-    <div class="text-center d-none d-md-inline">
-        <button class="rounded-circle border-0" id="sidebarToggle"></button>
-    </div> --}}
-
-    <!-- Sidebar Message (Optional - bisa dihapus jika tidak perlu) -->
+    <!-- Sidebar Message (Optional) -->
     <div class="sidebar-card d-none d-lg-flex">
         <img class="sidebar-card-illustration mb-2" src="{{ asset('images/oei-logo.png') }}" alt="...">
-        <p class="text-center mb-2"><strong>Sistem Absensi</strong> PT Oriental Electronics Indonesia</p>
+        <p class="text-center mb-2">
+            <strong>Sistem Absensi</strong> PT Oriental Electronics Indonesia
+        </p>
     </div>
 
 </ul>
 
 <style>
-/* Custom Sidebar Styling */
-.sidebar .sidebar-brand {
-    height: 4.375rem;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 800;
-    padding: 1.5rem 1rem;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.05rem;
-    z-index: 1;
-}
+    /* Custom Sidebar Styling */
+    .sidebar .sidebar-brand {
+        height: 4.375rem;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 800;
+        padding: 1.5rem 1rem;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.05rem;
+        z-index: 1;
+    }
 
-.sidebar .sidebar-brand-icon img {
-    filter: brightness(0) invert(1); /* Makes logo white */
-}
+    .sidebar .sidebar-brand-icon img {
+        filter: brightness(0) invert(1);
+    }
 
-.sidebar-heading {
-    text-align: center;
-    padding: 0 1rem;
-    font-weight: 800;
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1rem;
-}
+    .sidebar-heading {
+        text-align: center;
+        padding: 0 1rem;
+        font-weight: 800;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1rem;
+    }
 
-.sidebar .nav-item.active .nav-link {
-    font-weight: 700;
-}
+    .sidebar .nav-item.active .nav-link {
+        font-weight: 700;
+    }
 
-.sidebar-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 0.875rem;
-    border-radius: 0.35rem;
-    background-color: rgba(0, 0, 0, 0.1);
-    margin: 1.5rem;
-    padding: 1rem;
-}
+    .sidebar-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 0.875rem;
+        border-radius: 0.35rem;
+        background-color: rgba(0, 0, 0, 0.1);
+        margin: 1.5rem;
+        padding: 1rem;
+    }
 
-.sidebar-card-illustration {
-    height: 3rem;
-}
+    .sidebar-card-illustration {
+        height: 3rem;
+    }
 </style>

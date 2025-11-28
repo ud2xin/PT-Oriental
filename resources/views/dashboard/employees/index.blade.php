@@ -2,8 +2,8 @@
 @section('title', 'Data Karyawan Realtime')
 
 @section('content')
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Data Karyawan</h1>
+<div class="d-flex align-items-center mb-4 px-2">
+    <h4 class="font-weight-bold mb-0 text-primary">Data Karyawan</h4>
 </div>
 
 <!-- Filter Form -->
@@ -76,8 +76,7 @@
             <div class="row mt-2">
                 <div class="col-md-10 mb-2">
                     <input type="text" name="search" class="form-control"
-                        placeholder="Cari nama / NIP / Jabatan / Departemen..."
-                        value="{{ request('search') }}">
+                        placeholder="Cari nama / NIP / Jabatan / Departemen..." value="{{ request('search') }}">
                 </div>
                 <div class="col-md-2 mb-2">
                     <div class="d-flex gap-2">
@@ -147,7 +146,8 @@
         <!-- Pagination -->
         <div class="d-flex justify-content-between mt-3">
             <div>
-                Menampilkan {{ $employees->firstItem() }} - {{ $employees->lastItem() }} dari {{ $employees->total() }} entri
+                Menampilkan {{ $employees->firstItem() }} - {{ $employees->lastItem() }} dari {{ $employees->total() }}
+                entri
             </div>
             <div>{{ $employees->links() }}</div>
         </div>

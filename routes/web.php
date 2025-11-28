@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
+// FRONTEND CONTROLLERS
 use App\Http\Controllers\Frontend\DashboardController;
 use App\Http\Controllers\Frontend\DataAbsensiController;
 use App\Http\Controllers\Frontend\ImportController;
@@ -8,10 +11,11 @@ use App\Http\Controllers\Frontend\ReportsController;
 use App\Http\Controllers\Frontend\UserController;
 use App\Http\Controllers\Frontend\DepartmentController;
 use App\Http\Controllers\Frontend\EmployeesController;
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\KaryawanDashboardController;
+use App\Http\Controllers\Frontend\OvertimeController;
+use App\Http\Controllers\Frontend\KaryawanDashboardController;
 
+// PROFILE
+use App\Http\Controllers\ProfileController;
 
 // Landing page
 Route::get('/', function () {
@@ -49,15 +53,11 @@ Route::middleware(['auth'])->group(function () {
     // SETTINGS
     Route::get('/settings', fn() => view('settings.index'))->name('settings.index');
 
-    // ============================================
-    //  ABSENSI DATA (REALTIME)
-    // ============================================
+    // ABSENSI REALTIME
     Route::prefix('attendance')->group(function () {
 
-        // DATA ABSENSI REALTIME (TK_TRANST)
-        Route::get('/attendance', [DataAbsensiController::class, 'index'])->name('attendance.index');
+        Route::get('/', [DataAbsensiController::class, 'index'])->name('attendance.index');
 
-        // CHECKIN / CHECKOUT (LOCAL)
         Route::get('/checkin', [AttendanceController::class, 'showCheckin'])->name('attendance.checkin.show');
         Route::post('/checkin', [AttendanceController::class, 'checkin'])->name('attendance.checkin.post');
 
@@ -66,18 +66,26 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/export', [AttendanceController::class, 'export'])->name('attendance.export');
 
-        // DETAIL LOCAL
         Route::get('/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
     });
+
 
     // EMPLOYEES
     Route::get('/employees', [EmployeesController::class, 'index'])->name('employees.index');
 
-    // Overtime
-    Route::get('/overtime', [App\Http\Controllers\Frontend\OvertimeController::class, 'index']);
+    // OVERTIME
+    Route::prefix('reports')->group(function () {
 
+        Route::get('/overtime', [OvertimeController::class, 'index'])
+            ->name('reports.overtime.index');
+
+        Route::post('/overtime/filter', [OvertimeController::class, 'filter'])
+            ->name('reports.overtime.filter');
+    });
+
+    // DASHBOARD KARYAWAN
     Route::get('/karyawan/dashboard', [KaryawanDashboardController::class, 'index'])
-    ->name('karyawan.dashboard');
+        ->name('karyawan.dashboard');
 });
 
 require __DIR__ . '/auth.php';

@@ -5,28 +5,47 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DataAbsensiController extends Controller
 {
     public function index(Request $request)
     {
-        $bulan  = $request->input('bulan', date('m'));
-        $tahun  = $request->input('tahun', date('Y'));
-        $search = $request->input('search');
+        $tanggal = $request->input('tanggal');
+        $search  = $request->input('search');
 
-        $startDate = "$tahun-$bulan-01";
-        $endDate   = date("Y-m-t", strtotime($startDate));
+        // ===============================
+        //  JIKA BELUM PILIH TANGGAL → KIRIM PAGINATOR KOSONG
+        // ===============================
+        if (!$tanggal) {
 
+            $emptyPaginator = new LengthAwarePaginator(
+                [],  // data kosong
+                0,   // total
+                20,  // perPage
+                1,   // currentPage
+                ['path' => url()->current()]
+            );
+
+            return view('attendance.index', [
+                'absensi' => $emptyPaginator,
+                'tanggal' => null,
+                'search'  => $search
+            ]);
+        }
+
+        // ===============================
+        //  QUERY DATA ABSENSI BERDASARKAN TANGGAL
+        // ===============================
         $query = DB::table('TK_TRANST AS A')
             ->leftJoin('TH_EMP01M AS B', 'A.EMPL_NMBR', '=', 'B.EMPL_NMBR')
             ->leftJoin('TB_CODEXD AS D', function ($join) {
                 $join->on('B.DRPT_CODE', '=', 'D.codd_valu')
-                     ->where('D.codh_flnm', '=', 'DRPT_CODE');
+                    ->where('D.codh_flnm', '=', 'DRPT_CODE');
             })
             ->leftJoin('TB_CODEXD AS C', function ($join) {
                 $join->on('B.DUPL_DRPT', '=', 'C.codd_valu')
-                     ->where('C.codh_flnm', '=', 'DIVX_CODE');
+                    ->where('C.codh_flnm', '=', 'DIVX_CODE');
             })
             ->select(
                 'A.EMPL_NMBR',
@@ -39,19 +58,22 @@ class DataAbsensiController extends Controller
                 'A.TERM_NMBR',
                 'A.TRAN_USR1'
             )
-            ->whereBetween(DB::raw("CONVERT(date, A.TRNS_DATE)"), [$startDate, $endDate]);
+            ->whereDate('A.TRNS_DATE', '=', $tanggal);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('A.EMPL_NMBR', 'LIKE', "%$search%")
-                  ->orWhere('B.KORX_NAME', 'LIKE', "%$search%")
-                  ->orWhere('C.codd_desc', 'LIKE', "%$search%")
-                  ->orWhere('D.codd_desc', 'LIKE', "%$search%");
+                    ->orWhere('B.KORX_NAME', 'LIKE', "%$search%")
+                    ->orWhere('C.codd_desc', 'LIKE', "%$search%")
+                    ->orWhere('D.codd_desc', 'LIKE', "%$search%");
             });
         }
 
-        $absensi = $query->orderBy('A.TRNS_DATE', 'asc')->paginate(20);
+        $absensi = $query
+            ->orderBy('A.TRNS_DATE', 'asc')
+            ->paginate(20)
+            ->appends($request->query());
 
-        return view('attendance.index', compact('absensi', 'bulan', 'tahun', 'search'));
+        return view('attendance.index', compact('absensi', 'tanggal', 'search'));
     }
 }
