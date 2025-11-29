@@ -9,6 +9,7 @@ use App\Models\Attendance;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Models\Department;
+use Illuminate\Support\Facades\DB;
 
 
 class DashboardController extends Controller
@@ -29,36 +30,43 @@ class DashboardController extends Controller
 
             $today = now()->format('Y-m-d');
 
-            // Total karyawan unik berdasarkan PIN
-            $totalKaryawan = Attendance::distinct('pin')->count('pin');
+            // 1. Ambil karyawan aktif dari SP
+            $karyawanAktif = collect(DB::select("EXEC SPH_KaryawanList_1 '', '', '', '', ''"))
+                ->where('JJIK_PART', 'ACTIVE');
 
-            // Hadir hari ini (io = 'in')
+            // 2. Hitung total karyawan aktif
+            $totalKaryawan = $karyawanAktif->count();
+
+            // 3. Ambil daftar PIN karyawan aktif
+            $pinAktif = $karyawanAktif->pluck('empl_nmbr');
+
+            // 4. Hadir / Izin / Alfa
             $hadirHariIni = Attendance::where('tanggal', $today)
+                ->whereIn('pin', $pinAktif)
                 ->where('io', 'in')
                 ->distinct('pin')
                 ->count('pin');
 
-            // Izin hari ini (sementara workcode = 1)
             $izinHariIni = Attendance::where('tanggal', $today)
+                ->whereIn('pin', $pinAktif)
                 ->where('workcode', 1)
                 ->distinct('pin')
                 ->count('pin');
 
-            // Alfa
             $alfaHariIni = $totalKaryawan - $hadirHariIni - $izinHariIni;
 
-            // Persentase hadir
             $persentaseKehadiran = $totalKaryawan > 0
                 ? round(($hadirHariIni / $totalKaryawan) * 100, 1)
                 : 0;
 
-            // ====== Grafik Kehadiran Mingguan ======
-            $startOfWeek = Carbon::now()->startOfWeek(); // Senin
-            $endOfWeek = Carbon::now()->endOfWeek();     // Minggu
+            // 5. Grafik Mingguan
+            $startOfWeek = Carbon::now()->startOfWeek();
+            $endOfWeek = Carbon::now()->endOfWeek();
 
             $weeklyData = Attendance::selectRaw('tanggal, COUNT(DISTINCT pin) as total_hadir')
                 ->whereBetween('tanggal', [$startOfWeek->format('Y-m-d'), $endOfWeek->format('Y-m-d')])
                 ->where('io', 'in')
+                ->whereIn('pin', $pinAktif) // HANYA karyawan aktif
                 ->groupBy('tanggal')
                 ->orderBy('tanggal', 'ASC')
                 ->get();
@@ -69,20 +77,14 @@ class DashboardController extends Controller
             $period = CarbonPeriod::create($startOfWeek, $endOfWeek);
 
             foreach ($period as $date) {
-                $labels[] = $date->translatedFormat('l'); // Senin, Selasa, dst.
+                $labels[] = $date->translatedFormat('l');
                 $record = $weeklyData->firstWhere('tanggal', $date->format('Y-m-d'));
                 $dataHadir[] = $record ? $record->total_hadir : 0;
             }
 
-
-
-            // Tambahan baru
+            // tambahan
             $totalDepartemen = Department::count();
-
-            // Dummy
             $hariKerjaBulanIni = 0;
-
-            // Dummy
             $terlatHariIni = 0;
 
             return view('dashboard.super-admin', compact(
@@ -98,6 +100,7 @@ class DashboardController extends Controller
                 'dataHadir'
             ));
         }
+
 
         // Admin Departemen
         if ($role === 'admin') {
