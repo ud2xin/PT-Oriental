@@ -1,63 +1,64 @@
 @extends('layouts.app')
+@section('title', 'Overtime Report')
 
 @section('content')
 
 <style>
-.ot-wrapper {
-    overflow-x: auto;
-    padding-bottom: 20px;
-}
+    .ot-wrapper {
+        overflow-x: auto;
+        padding-bottom: 20px;
+    }
 
-.ot-table {
-    min-width: 3300px;
-    font-size: 14px;
-}
+    .ot-table {
+        min-width: 3300px;
+        font-size: 14px;
+    }
 
-.ot-table th {
-    white-space: nowrap;
-    text-align: center;
-    padding: 10px 8px;
-    font-weight: 600;
-    background: #f8f9fc;
-    border: 1px solid #dcdcdc !important;
-}
+    .ot-table th {
+        white-space: nowrap;
+        text-align: center;
+        padding: 10px 8px;
+        font-weight: 600;
+        background: #f8f9fc;
+        border: 1px solid #dcdcdc !important;
+    }
 
-.ot-table td {
-    white-space: nowrap;
-    padding: 8px 6px !important;
-    border: 1px solid #eee !important;
-    font-size: 13px;
-    text-align: center;
-    font-weight: normal !important;
-}
+    .ot-table td {
+        white-space: nowrap;
+        padding: 8px 6px !important;
+        border: 1px solid #eee !important;
+        font-size: 13px;
+        text-align: center;
+        font-weight: normal !important;
+    }
 
-.ot-name {
-    text-align: left !important;
-    padding-left: 10px !important;
-}
+    .ot-name {
+        text-align: left !important;
+        padding-left: 10px !important;
+    }
 
-.ot-total {
-    font-weight: 700 !important;
-    color: #007bff !important;
-}
+    .ot-total {
+        font-weight: 700 !important;
+        color: #007bff !important;
+    }
 
-.bg-blue {
-    background-color: #b3ecff !important;
-}
+    .bg-blue {
+        background-color: #b3ecff !important;
+    }
 
-.bg-pink {
-    background-color: #ffb3d9 !important;
-}
+    .bg-pink {
+        background-color: #ffb3d9 !important;
+    }
 
-.bg-purple {
-    background-color: #e6ccff !important;
-}
+    .bg-purple {
+        background-color: #e6ccff !important;
+    }
 
-.pagination-container {
-    display: flex;
-    justify-content: flex-end !important;
-    margin-top: 10px;
-}
+    .pagination-container {
+        display: flex;
+        justify-content: flex-end !important;
+        margin-top: 10px;
+    }
 </style>
 
 <div class="container-fluid">
