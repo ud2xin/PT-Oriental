@@ -3,89 +3,90 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\AttendanceLog;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class OvertimeController extends Controller
 {
     public function index(Request $request)
     {
-        $logs = AttendanceLog::orderBy('tanggal_scan', 'asc')->get();
+        // tanggal diambil dari query string
+        $tanggal = $request->query('tanggal');
 
-        // Kelompokkan per karyawan per tanggal
-        $grouped = $logs->groupBy(function ($q) {
-            return $q->nip . '_' . $q->tanggal;
-        });
-
-        $overtimeData = [];
-
-        foreach ($grouped as $rows) {
-
-            $first = $rows->first();
-            $last  = $rows->last();
-
-            $tanggal = $first->tanggal;
-            $nip     = $first->nip;
-            $nama    = $first->nama;
-
-            // Ambil jam masuk dan keluar
-            $jamMasuk  = Carbon::parse($first->tanggal . ' ' . $first->jam);
-            $jamKeluar = Carbon::parse($last->tanggal . ' ' . $last->jam);
-
-            // ================================
-            // 1. TENTUKAN SHIFT DARI JAM MASUK
-            // ================================
-            $shift = null;
-
-            $jm = $jamMasuk->format('H:i:s');
-
-            if ($jm >= '04:00:00' && $jm <= '11:00:00') {
-                $shift = 'A';
-            } elseif ($jm >= '12:00:00' && $jm <= '19:00:00') {
-                $shift = 'B';
-            } else {
-                // jam malam + dini hari
-                $shift = 'C';
-            }
-
-            // ================================
-            // 2. TENTUKAN JAM SHIFT
-            // ================================
-            $shiftSchedule = [
-                'A' => ['start' => '08:00:00', 'end' => '16:00:00'],
-                'B' => ['start' => '16:00:00', 'end' => '00:00:00'],
-                'C' => ['start' => '00:00:00', 'end' => '08:00:00'],
-            ];
-
-            $shiftStart = Carbon::parse($tanggal . ' ' . $shiftSchedule[$shift]['start']);
-            $shiftEnd   = Carbon::parse($tanggal . ' ' . $shiftSchedule[$shift]['end']);
-
-            // Jika shift berakhir lewat tengah malam
-            if ($shiftEnd <= $shiftStart) {
-                $shiftEnd->addDay();
-            }
-
-            // =================================
-            // 3. HITUNG LEMBUR
-            // =================================
-            $overtimeHours = 0;
-
-            if ($jamKeluar->greaterThan($shiftEnd)) {
-                $overtimeHours = $shiftEnd->diffInHours($jamKeluar);
-            }
-
-            $overtimeData[] = [
-                'tanggal'     => $tanggal,
-                'nip'         => $nip,
-                'nama'        => $nama,
-                'shift'       => $shift,
-                'jam_masuk'   => $jamMasuk->format('H:i:s'),
-                'jam_keluar'  => $jamKeluar->format('H:i:s'),
-                'overtime'    => $overtimeHours,
-            ];
+        // jika belum memilih tanggal → tampilkan halaman kosong
+        if (!$tanggal) {
+            return view('reports.overtime', [
+                'tanggal' => null,
+                'data' => null
+            ]);
         }
 
-        return view('reports.overtime', compact('overtimeData'));
+        // generate report pakai tanggal dari query
+        return $this->generateReport($tanggal, $request);
+    }
+
+    public function filter(Request $request)
+    {
+        $request->validate(['tanggal' => 'required|date']);
+
+        // redirect GET agar pagination tetap bekerja
+        return redirect()->route('reports.overtime.index', [
+            'tanggal' => $request->tanggal
+        ]);
+    }
+
+    private function generateReport($tanggal, Request $request)
+    {
+        $periode = date('Ym', strtotime($tanggal));
+
+        $raw = DB::select("EXEC sph_AttAbsenDaly_3 ?, '', '', '', ''", [$periode]);
+
+        // --- PIVOT ---
+        $pivot = [];
+
+        foreach ($raw as $row) {
+            $nik = $row->empl_nmbr;
+
+            if (!isset($pivot[$nik])) {
+                $pivot[$nik] = [
+                    'nik' => $nik,
+                    'nama' => $row->korx_name,
+                    'dept' => $row->dept_name,
+                    'total_ot' => 0,
+                ];
+
+                for ($i = 21; $i <= 31; $i++) $pivot[$nik][$i] = 0;
+                for ($i = 1; $i <= 20; $i++) $pivot[$nik][$i] = 0;
+            }
+
+            $hari = (int) date('d', strtotime($row->GUNT_DATE));
+            $pivot[$nik][$hari] = $row->OVER_CONV;
+            $pivot[$nik]['total_ot'] += $row->OVER_CONV;
+        }
+
+        $collection = collect(array_values($pivot));
+
+        // --- PAGINATION ---
+        $perPage = 20;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
+        $pageItems = $collection->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        $paginator = new LengthAwarePaginator(
+            $pageItems,
+            $collection->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path' => route('reports.overtime.index'),
+                'query' => ['tanggal' => $tanggal] // penting!
+            ]
+        );
+
+        return view('reports.overtime', [
+            'data' => $paginator,
+            'tanggal' => $tanggal
+        ]);
     }
 }

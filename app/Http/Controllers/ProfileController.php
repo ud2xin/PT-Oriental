@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class ProfileController extends Controller
 {
@@ -22,32 +24,43 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
-        $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-
         $user = Auth::user();
 
-        // Handle photo upload
+        // 1. Validasi Input
+        $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // Maks 2MB
+        ]);
+
+        // 2. Handle Upload Foto
         if ($request->hasFile('photo')) {
-            // Hapus foto lama jika ada
-            if ($user->photo && file_exists(public_path('images/' . $user->photo))) {
-                unlink(public_path('images/' . $user->photo));
+            
+            // Hapus foto lama jika ada (dan bukan default)
+            // Kita cek di folder 'public/photos'
+            $oldPhotoPath = public_path('photos/' . $user->photo);
+            if ($user->photo && File::exists($oldPhotoPath)) {
+                File::delete($oldPhotoPath);
             }
 
-            $fileName = time() . '.' . $request->photo->extension();
-            $request->photo->move(public_path('images'), $fileName);
+            // Buat nama file unik: user_id_timestamp.ext
+            $fileName = 'user_' . $user->id . '_' . time() . '.' . $request->photo->extension();
+            
+            // Pindahkan file ke folder 'public/photos'
+            // public_path() mengarah ke folder 'public' project Anda
+            $request->photo->move(public_path('photos'), $fileName);
+            
+            // Simpan nama file ke database
             $user->photo = $fileName;
         }
 
-        // Update name & email
-        $user->name  = $request->name;
+        // 3. Update data lainnya
+        $user->name = $request->name;
         $user->email = $request->email;
+        
         $user->save();
 
-        return back()->with('success', 'Profile updated successfully!');
+        return back()->with('success', 'Profil berhasil diperbarui!');
     }
 
     /**
@@ -63,12 +76,12 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return back()->with('error', 'Current password is incorrect.');
+            return back()->with('error', 'Password lama salah.');
         }
 
         $user->password = Hash::make($request->password);
         $user->save();
 
-        return back()->with('success', 'Password updated successfully!');
+        return back()->with('success', 'Password berhasil diperbarui!');
     }
 }

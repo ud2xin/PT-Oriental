@@ -1,14 +1,21 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
+// FRONTEND CONTROLLERS
 use App\Http\Controllers\Frontend\DashboardController;
-use App\Http\Controllers\ImportController;
+use App\Http\Controllers\Frontend\DataAbsensiController;
+use App\Http\Controllers\Frontend\ImportController;
 use App\Http\Controllers\Frontend\AttendanceController;
 use App\Http\Controllers\Frontend\ReportsController;
 use App\Http\Controllers\Frontend\UserController;
 use App\Http\Controllers\Frontend\DepartmentController;
-use App\Http\Controllers\Frontend\EmployeeController;
+use App\Http\Controllers\Frontend\EmployeesController;
+use App\Http\Controllers\Frontend\OvertimeController;
+use App\Http\Controllers\Frontend\KaryawanDashboardController;
+
+// PROFILE
 use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
 
 // Landing page
 Route::get('/', function () {
@@ -39,32 +46,46 @@ Route::middleware(['auth'])->group(function () {
     // PROFILE
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'index'])->name('profile');
-        Route::post('/update', [ProfileController::class, 'update'])->name('profile.update'); // update foto & data
+        Route::post('/update', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     });
 
     // SETTINGS
     Route::get('/settings', fn() => view('settings.index'))->name('settings.index');
 
-    // ATTENDANCE
+    // ABSENSI REALTIME
     Route::prefix('attendance')->group(function () {
-        Route::get('/', [AttendanceController::class, 'index'])->name('attendance.index');
+
+        Route::get('/', [DataAbsensiController::class, 'index'])->name('attendance.index');
+
         Route::get('/checkin', [AttendanceController::class, 'showCheckin'])->name('attendance.checkin.show');
         Route::post('/checkin', [AttendanceController::class, 'checkin'])->name('attendance.checkin.post');
+
         Route::get('/checkout', [AttendanceController::class, 'showCheckout'])->name('attendance.checkout.show');
         Route::post('/checkout', [AttendanceController::class, 'checkout'])->name('attendance.checkout.post');
+
         Route::get('/export', [AttendanceController::class, 'export'])->name('attendance.export');
+
         Route::get('/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
     });
 
+
     // EMPLOYEES
-    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
+    Route::get('/employees', [EmployeesController::class, 'index'])->name('employees.index');
 
-    //Overtime
-    Route::get('/overtime', [App\Http\Controllers\Frontend\OvertimeController::class, 'index']);
+    // OVERTIME
+    Route::prefix('reports')->group(function () {
+
+        Route::get('/overtime', [OvertimeController::class, 'index'])
+            ->name('reports.overtime.index');
+
+        Route::post('/overtime/filter', [OvertimeController::class, 'filter'])
+            ->name('reports.overtime.filter');
+    });
+
+    // DASHBOARD KARYAWAN
+    Route::get('/karyawan/dashboard', [KaryawanDashboardController::class, 'index'])
+        ->name('karyawan.dashboard');
 });
-
-Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
-Route::get('/attendance/{id}', [AttendanceController::class, 'show'])->name('attendance.show');
 
 require __DIR__ . '/auth.php';

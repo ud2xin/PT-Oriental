@@ -13,7 +13,6 @@
         </form>
 
         <hr>
-
         <div id="preview" style="display:none;">
             <h6 class="mb-3">Preview Data</h6>
 
@@ -28,8 +27,10 @@
         </div>
 
     </div>
+
 </div>
 @endsection
+
 
 @push('scripts')
 

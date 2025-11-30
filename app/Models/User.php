@@ -15,8 +15,9 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'department_id', // <-- WAJIB TAMBAH
+        'department_id',
         'pin',
+        'photo', // <--- PENTING: Wajib ada biar foto tersimpan
     ];
 
     protected $hidden = [

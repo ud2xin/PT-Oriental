@@ -5,8 +5,8 @@
 @section('content')
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between mb-3">
-        <h3>Manajemen User</h3>
+    <div class="d-flex justify-content-between mb-3 px-2">
+        <h4 class="font-weight-bold mb-0 text-primary">Manajemen User</h4>
 
         <a href="{{ route('users.create') }}" class="btn btn-primary">
             <i class="fas fa-user-plus"></i> Tambah User

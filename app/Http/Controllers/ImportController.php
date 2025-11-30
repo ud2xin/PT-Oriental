@@ -128,15 +128,15 @@ class ImportController extends Controller
             DB::statement("
                 INSERT INTO TK_TRANST
                 (TRNS_DATE, CARD_NMBR, EMPL_NMBR, TYPE_CODE,
-                 GUNT_PART, OFFI_CODE, TERM_NMBR,
-                 TRAN_PART, TRAN_USR1, BUSS_CODE)
+                GUNT_PART, OFFI_CODE, TERM_NMBR,
+                TRAN_PART, TRAN_USR1, BUSS_CODE)
                 SELECT A.TRNS_DATE, A.CARD_NMBR, A.EMPL_NMBR, A.TYPE_CODE,
-                       A.GUNT_PART, A.OFFI_CODE, A.TERM_NMBR,
-                       A.TRAN_PART, A.TRAN_USR1, A.BUSS_CODE
+                        A.GUNT_PART, A.OFFI_CODE, A.TERM_NMBR,
+                        A.TRAN_PART, A.TRAN_USR1, A.BUSS_CODE
                 FROM TTK_TRANST A
                 LEFT JOIN TK_TRANST B
-                       ON A.TRNS_DATE = B.TRNS_DATE
-                      AND A.EMPL_NMBR = B.EMPL_NMBR
+                        ON A.TRNS_DATE = B.TRNS_DATE
+                        AND A.EMPL_NMBR = B.EMPL_NMBR
                 WHERE B.EMPL_NMBR IS NULL
             ");
 

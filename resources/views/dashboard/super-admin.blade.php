@@ -2,8 +2,8 @@
 @section('title', 'Dashboard - Super Admin')
 
 @section('content')
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Dashboard Super Admin</h1>
+<div class="d-flex align-items-center mb-4">
+    <h4 class="font-weight-bold mb-0 text-primary">Dashboard Super Admin</h4>
 </div>
 
 <!-- Stats Cards Row -->
@@ -34,7 +34,8 @@
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Hadir Hari Ini</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $hadirHariIni }}</div>
-                        <div class="text-xs text-primary mt-1">{{ number_format($persentaseKehadiran, 1) }}% kehadiran</div>
+                        <div class="text-xs text-primary mt-1">{{ number_format($persentaseKehadiran, 1) }}% kehadiran
+                        </div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-check-circle fa-2x text-gray-300"></i>
@@ -52,7 +53,8 @@
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Izin</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $izinHariIni }}</div>
-                        <div class="text-xs text-muted mt-1">{{ number_format(($izinHariIni/$totalKaryawan)*100, 1) }}% dari total</div>
+                        <div class="text-xs text-muted mt-1">{{ number_format(($izinHariIni/$totalKaryawan)*100, 1) }}%
+                            dari total</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
@@ -70,7 +72,8 @@
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Alfa</div>
                         <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $alfaHariIni }}</div>
-                        <div class="text-xs text-danger mt-1">{{ number_format(($alfaHariIni/$totalKaryawan)*100, 1) }}% dari total</div>
+                        <div class="text-xs text-danger mt-1">{{ number_format(($alfaHariIni/$totalKaryawan)*100, 1) }}%
+                            dari total</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-times-circle fa-2x text-gray-300"></i>
@@ -126,20 +129,20 @@
                 <div class="mb-3">
                     <div class="small text-gray-500 mb-1">Total Departemen</div>
                     <h4 class="font-weight-bold">{{ $totalDepartemen }}</h4>
-                </div>
-                <hr>
-                <div class="mb-3">
-                    <div class="small text-gray-500 mb-1">Hari Kerja Bulan Ini</div>
-                    <h4 class="font-weight-bold">{{ $hariKerjaBulanIni }}</h4>
-                </div>
-                <hr>
-                <div>
-                    <div class="small text-gray-500 mb-1">Terlambat Hari Ini</div>
-                    <h4 class="font-weight-bold text-warning">{{ $terlatHariIni }}</h4>
-                </div>
-            </div>
-        </div>
-    </div> --}}
+    </div>
+    <hr>
+    <div class="mb-3">
+        <div class="small text-gray-500 mb-1">Hari Kerja Bulan Ini</div>
+        <h4 class="font-weight-bold">{{ $hariKerjaBulanIni }}</h4>
+    </div>
+    <hr>
+    <div>
+        <div class="small text-gray-500 mb-1">Terlambat Hari Ini</div>
+        <h4 class="font-weight-bold text-warning">{{ $terlatHariIni }}</h4>
+    </div>
+</div>
+</div>
+</div> --}}
 </div>
 
 <!-- Table: 10 Karyawan Terlambat -->
@@ -162,22 +165,22 @@
                             </tr>
                         </thead>
                         <tbody> --}}
-                            {{-- @foreach($karyawanTerlambat as $index => $karyawan)
+{{-- @foreach($karyawanTerlambat as $index => $karyawan)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
-                                <td class="font-weight-bold">{{ $karyawan['nama'] }}</td>
-                                <td>{{ $karyawan['departemen'] }}</td>
-                                <td>{{ $karyawan['jam_masuk'] }}</td>
-                                <td>
-                                    @php
-                                        $menit = (int) filter_var($karyawan['keterlambatan'], FILTER_SANITIZE_NUMBER_INT);
-                                        $badgeClass = $menit > 15 ? 'badge-danger' : 'badge-warning';
-                                    @endphp
-                                    <span class="badge {{ $badgeClass }}">{{ $karyawan['keterlambatan'] }}</span>
-                                </td>
-                            </tr>
-                            @endforeach --}}
-                        {{-- </tbody>
+<td class="font-weight-bold">{{ $karyawan['nama'] }}</td>
+<td>{{ $karyawan['departemen'] }}</td>
+<td>{{ $karyawan['jam_masuk'] }}</td>
+<td>
+    @php
+    $menit = (int) filter_var($karyawan['keterlambatan'], FILTER_SANITIZE_NUMBER_INT);
+    $badgeClass = $menit > 15 ? 'badge-danger' : 'badge-warning';
+    @endphp
+    <span class="badge {{ $badgeClass }}">{{ $karyawan['keterlambatan'] }}</span>
+</td>
+</tr>
+@endforeach --}}
+{{-- </tbody>
                     </table>
                 </div>
             </div>
